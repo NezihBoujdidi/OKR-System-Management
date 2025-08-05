@@ -1,0 +1,7 @@
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:5001',
+  supabaseUrl: 'https://jwpdgikqwfudfnemtxmt.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3cGRnaWtxd2Z1ZGZuZW10eG10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEwNzU2MjAsImV4cCI6MjA1NjY1MTYyMH0.wxpsV7Mr5q3ttKNmZiguFyoOsa17zj5fDvmPuup1GAM',
+  serviceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3cGRnaWtxd2Z1ZGZuZW10eG10Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MTA3NTYyMCwiZXhwIjoyMDU2NjUxNjIwfQ.QmW1rRmi72l3eJP7DNG0eeYRmC9HiBcV1bFx6io7QR8'
+}; 

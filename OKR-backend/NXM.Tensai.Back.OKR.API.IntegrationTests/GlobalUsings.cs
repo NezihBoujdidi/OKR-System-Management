@@ -1,0 +1,13 @@
+global using Xunit;
+global using FluentAssertions;
+global using Microsoft.AspNetCore.Mvc.Testing;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.EntityFrameworkCore;
+global using System.Net.Http;
+global using System.Text.Json;
+global using System.Text;
+global using NXM.Tensai.Back.OKR.Infrastructure;
+global using NXM.Tensai.Back.OKR.Domain.Entities;
+global using NXM.Tensai.Back.OKR.Domain.Enums;
+global using NXM.Tensai.Back.OKR.Domain;
+global using Bogus;

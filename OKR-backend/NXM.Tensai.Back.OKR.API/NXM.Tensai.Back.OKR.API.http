@@ -1,0 +1,6 @@
+@NXM.Tensai.Back.OKR.API_HostAddress = http://localhost:5029
+
+GET {{NXM.Tensai.Back.OKR.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

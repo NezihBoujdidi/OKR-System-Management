@@ -1,0 +1,283 @@
+<div class="flex">
+    <app-navigation-sidebar activeRoute="subscription"></app-navigation-sidebar>
+    <app-content-sidebar activeSection="subscription"></app-content-sidebar>
+    
+    <!-- Main Content -->
+    <div class="ml-[312px] flex-1">
+      <!-- Modern Upgrade Page -->
+      <div class="min-h-screen bg-white text-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <!-- Header -->
+          <div class="mb-8 text-center">
+            <div class="flex justify-center mb-4">
+              <a (click)="goBack()" class="absolute left-[340px] top-6 p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors cursor-pointer">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back
+              </a>
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-accent rounded-md flex items-center justify-center shadow-md mr-3">
+                  <i class="fas fa-robot text-primary"></i>
+                </div>
+                <h1 class="text-3xl font-bold">OKR Assistant</h1>
+              </div>
+            </div>
+            <h2 class="text-4xl font-bold mb-4">Upgrade Your Experience</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+              Choose the plan that best suits your team's needs and unlock the full potential of OKR Assistant.
+            </p>
+          </div>
+
+          <!-- Steps Indicator -->
+          <div class="max-w-xl mx-auto mb-8">
+            <div class="flex items-center justify-between">
+              <div class="flex flex-col items-center">
+                <div [ngClass]="{'bg-accent text-primary': currentStep === 1, 'bg-gray-200 text-gray-700': currentStep !== 1}" 
+                     class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-2">
+                  1
+                </div>
+                <span class="text-sm" [ngClass]="{'text-accent font-medium': currentStep === 1, 'text-gray-600': currentStep !== 1}">
+                  Choose Plan
+                </span>
+              </div>
+              
+              <div class="flex-grow mx-4 h-1 bg-gray-200 rounded">
+                <div [ngStyle]="{'width': currentStep > 1 ? '100%' : '0%'}" class="h-full bg-accent transition-all duration-500"></div>
+              </div>
+              
+              <div class="flex flex-col items-center">
+                <div [ngClass]="{'bg-accent text-primary': currentStep === 2, 'bg-gray-200 text-gray-700': currentStep !== 2}" 
+                     class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-2">
+                  2
+                </div>
+                <span class="text-sm" [ngClass]="{'text-accent font-medium': currentStep === 2, 'text-gray-600': currentStep !== 2}">
+                  Payment Details
+                </span>
+              </div>
+              
+              <div class="flex-grow mx-4 h-1 bg-gray-200 rounded">
+                <div [ngStyle]="{'width': currentStep > 2 ? '100%' : '0%'}" class="h-full bg-accent transition-all duration-500"></div>
+              </div>
+              
+              <div class="flex flex-col items-center">
+                <div [ngClass]="{'bg-accent text-primary': currentStep === 3, 'bg-gray-200 text-gray-700': currentStep !== 3}" 
+                     class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-2">
+                  3
+                </div>
+                <span class="text-sm" [ngClass]="{'text-accent font-medium': currentStep === 3, 'text-gray-600': currentStep !== 3}">
+                  Confirmation
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div *ngIf="loading" class="flex justify-center items-center py-16">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error" class="max-w-xl mx-auto mb-8 bg-red-100 border border-red-300 text-red-600 px-4 py-3 rounded-md">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            {{ error }}
+          </div>
+
+          <!-- Step 1: Plan Selection -->
+          <div *ngIf="currentStep === 1" class="animate-fadeIn">
+            <!-- Plan Selection Cards -->
+            <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-5xl mx-auto">
+              <ng-container *ngFor="let plan of plans">
+                <div 
+                  class="bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 cursor-pointer overflow-hidden relative flex flex-col shadow-sm hover:shadow-md"
+                  [ngClass]="{
+                    'border-accent': plan.id === selectedPlanId || plan.recommended,
+                    'transform': plan.id === selectedPlanId,
+                    'scale-105': plan.id === selectedPlanId,
+                    'shadow-xl': plan.id === selectedPlanId,
+                    'shadow-accent/10': plan.id === selectedPlanId
+                  }"
+                  (click)="selectPlan(plan.id)">
+                  
+                  <!-- Recommended Badge -->
+                  <div *ngIf="plan.recommended" class="absolute top-0 right-0">
+                    <div class="bg-accent text-primary text-xs font-bold px-2 py-0.5 rounded-bl-md rounded-tr-md shadow-md">
+                      RECOMMENDED
+                    </div>
+                  </div>
+                  
+                  <!-- Plan Header -->
+                  <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-bold mb-1">{{ plan.name }}</h3>
+                    <div class="flex items-baseline">
+                      <span class="text-2xl font-bold">${{ plan.price }}</span>
+                      <span class="text-xs text-gray-500 ml-2">per {{ plan.interval }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Description -->
+                  <div class="px-4 pt-2 text-sm text-gray-600">
+                    {{ plan.description }}
+                  </div>
+                  
+                  <!-- Plan Features -->
+                  <div class="p-4 flex-grow">
+                    <ul class="space-y-2">
+                      <li *ngFor="let feature of plan.features" class="flex items-start text-sm">
+                        <i class="fas fa-check text-green-500 mt-1 mr-2 text-xs"></i>
+                        <span class="text-gray-700">{{ feature }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <!-- Plan Selection Button -->
+                  <div class="p-4 pt-0">
+                    <button 
+                      class="w-full py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 hover:shadow-md"
+                      [ngClass]="{
+                        'bg-accent': plan.id === selectedPlanId,
+                        'text-primary': plan.id === selectedPlanId,
+                        'border-accent': plan.id === selectedPlanId,
+                        'bg-gray-100': plan.id !== selectedPlanId,
+                        'text-gray-700': plan.id !== selectedPlanId,
+                        'border border-gray-300': plan.id !== selectedPlanId,
+                        'hover:bg-accent/90': plan.id !== selectedPlanId,
+                        'hover:text-primary': plan.id !== selectedPlanId
+                      }"
+                      (click)="selectPlan(plan.id); $event.stopPropagation()">
+                      {{ plan.id === selectedPlanId ? 'Selected' : (plan.buttonText || 'Subscribe') }}
+                    </button>
+                  </div>
+                  
+                  <!-- Selected Indicator -->
+                  <div *ngIf="plan.id === selectedPlanId" class="absolute inset-0 border-4 border-accent/30 rounded-xl pointer-events-none"></div>
+                </div>
+              </ng-container>
+            </div>
+            
+            <!-- Next Button -->
+            <div class="flex justify-center">
+              <button 
+                (click)="goToStep(2)" 
+                [disabled]="!selectedPlanId"
+                class="px-8 py-3 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                <span>Continue to Payment</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Payment Form -->
+          <div *ngIf="currentStep === 2" class="animate-fadeIn">
+            <div class="max-w-xl mx-auto bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold mb-2">Payment Details</h3>
+                <p class="text-gray-600 text-sm">Enter your card information to complete your subscription</p>
+              </div>
+              
+              <div class="p-6">
+                <!-- Error Message -->
+                <div *ngIf="errorMessage" class="mb-6 bg-red-100 border border-red-300 text-red-600 px-4 py-3 rounded-md">
+                  <i class="fas fa-exclamation-circle mr-2"></i>
+                  {{ errorMessage }}
+                </div>
+                
+                <!-- Payment Form -->
+                <form (submit)="$event.preventDefault(); processPayment()">
+                  <div class="space-y-5">
+                    <!-- Stripe Card Element -->
+                    <div>
+                      <label for="card-element" class="block text-sm font-medium text-gray-700 mb-2">Card Information</label>
+                      <div class="p-4 bg-gray-50 border border-gray-300 rounded-md">
+                        <!-- This div will be replaced by the Stripe Card Element -->
+                        <div #cardElement id="card-element" class="h-10"></div>
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1 flex items-center">
+                        <i class="fas fa-lock mr-1"></i>
+                        <span>Your payment info is secured by Stripe</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Cardholder Name -->
+                    <div>
+                      <label for="cardName" class="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
+                      <input 
+                        type="text" 
+                        id="cardName" 
+                        [(ngModel)]="cardName" 
+                        name="cardName" 
+                        placeholder="John Doe" 
+                        class="w-full py-3 px-4 bg-white border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        autocomplete="cc-name">
+                    </div>
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="flex justify-between mt-8">
+                    <button 
+                      type="button"
+                      (click)="goToStep(1)"
+                      class="px-6 py-2 border border-gray-300 hover:border-gray-400 text-gray-700 rounded-md transition-all duration-200 hover:bg-gray-50">
+                      Back to Plans
+                    </button>
+                    
+                    <button 
+                      type="submit"
+                      [disabled]="isProcessing || !cardName"
+                      class="px-6 py-2 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed min-w-[180px]">
+                      <span *ngIf="isProcessing" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" aria-hidden="true"></span>
+                      <span>{{ isProcessing ? 'Processing...' : 'Complete Purchase' }}</span>
+                    </button>
+                  </div>
+                  
+                  <!-- Secure Payment Note -->
+                  <div class="text-center text-gray-500 text-xs flex items-center justify-center mt-6">
+                    <i class="fas fa-lock mr-2"></i>
+                    <span>Secure payment processing. Your card details are encrypted.</span>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Payment Summary -->
+              <div class="p-4 bg-gray-50 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 text-sm">Selected Plan:</span>
+                  <span class="font-medium text-gray-800">{{ getSelectedPlan().name }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-gray-600 text-sm">Total:</span>
+                  <span class="text-base font-bold text-gray-800">${{ getSelectedPlan().price }}/{{ getSelectedPlan().interval }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Step 3: Success Message -->
+          <div *ngIf="currentStep === 3" class="animate-fadeIn">
+            <div class="max-w-xl mx-auto bg-white rounded-xl border border-accent/30 shadow-lg overflow-hidden p-8 text-center">
+              <div class="w-20 h-20 mx-auto bg-accent/20 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-check text-accent text-3xl"></i>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">Payment Successful!</h3>
+              <p class="text-gray-600 mb-6">Your subscription has been activated successfully.</p>
+              
+              <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-gray-600">Plan:</span>
+                  <span class="font-medium text-gray-800">{{ getSelectedPlan().name }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Status:</span>
+                  <span class="text-green-600 font-medium">Active</span>
+                </div>
+              </div>
+              
+              <button 
+                (click)="goBack()"
+                class="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200">
+                Return to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div> 

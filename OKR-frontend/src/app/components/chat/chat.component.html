@@ -1,0 +1,643 @@
+<app-loading-overlay [show]="showLoadingOverlay" message="Navigating to Home..."></app-loading-overlay>
+
+<!-- Loading indicator while checking subscription -->
+<div *ngIf="isCheckingSubscription" class="h-screen w-screen flex flex-col items-center justify-center bg-[#0d1526]">
+  <div class="w-16 h-16 border-t-4 border-accent rounded-full animate-spin mb-4"></div>
+  <p class="text-white text-lg">Checking subscription status...</p>
+</div>
+
+<!-- Subscription required overlay for organizations without a valid subscription -->
+<div *ngIf="!isCheckingSubscription && !hasValidSubscription" class="h-screen w-screen flex flex-col items-center justify-center bg-[#0d1526] relative overflow-hidden">
+  
+  <!-- Back to Home button in top right corner - only show for non-SuperAdmin users -->
+  <button 
+    *ngIf="userRole !== 'SuperAdmin'"
+    (click)="navigateToHome()" 
+    class="absolute top-4 right-4 py-2 px-4 bg-accent text-primary font-medium rounded-lg flex items-center justify-center space-x-2 hover:bg-accent-hover transition-all duration-300 shadow-lg z-50">
+    <i class="fas fa-arrow-left mr-2"></i>
+    <span>Back to Home</span>
+  </button>
+
+  <!-- Enhanced blurred AI Chat UI in the background -->
+  <div class="absolute inset-0 filter blur-[5px] opacity-40">
+    <!-- Fake sidebar -->
+    <div class="absolute left-0 top-0 bottom-0 w-60 bg-gradient-to-b from-[#111827] to-[#0f172a] border-r border-gray-800/70"></div>
+    
+    <!-- Fake chat area -->
+    <div class="absolute left-60 top-0 right-0 bottom-0 bg-[#0d1526]">
+      <!-- Fake header -->
+      <div class="h-14 bg-gradient-to-r from-[#111827]/90 to-[#1e293b]/90 border-b border-gray-800/50"></div>
+      
+      <!-- Fake messages -->
+      <div class="p-6">
+        <!-- Fake bot message -->
+        <div class="max-w-3xl w-4/5 my-6 ml-0 flex">
+          <div class="w-8 h-8 rounded-full bg-accent/30 flex-shrink-0"></div>
+          <div class="ml-4 p-3 rounded-lg bg-[#1a1a2e] text-white w-full"></div>
+        </div>
+        
+        <!-- Fake user message -->
+        <div class="max-w-3xl w-3/5 my-6 ml-auto flex flex-row-reverse">
+          <div class="w-8 h-8 rounded-full bg-gray-600 flex-shrink-0"></div>
+          <div class="mr-4 p-3 rounded-lg bg-accent/20 text-white w-full"></div>
+        </div>
+        
+        <!-- Another fake bot message -->
+        <div class="max-w-3xl w-4/5 my-6 ml-0 flex">
+          <div class="w-8 h-8 rounded-full bg-accent/30 flex-shrink-0"></div>
+          <div class="ml-4 p-3 rounded-lg bg-[#1a1a2e] text-white w-full"></div>
+        </div>
+      </div>
+      
+      <!-- Fake input area -->
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800/50">
+        <div class="h-12 bg-[#111827] rounded-lg w-full"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Animated particles in the background -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]" 
+        class="absolute bg-accent/20 rounded-full"
+        [style.width.px]="20 + Math.random() * 30"
+        [style.height.px]="20 + Math.random() * 30"
+        [style.left.%]="Math.random() * 100"
+        [style.top.%]="Math.random() * 100"
+        [style.animationDelay.s]="Math.random() * 5"
+        [style.animationDuration.s]="10 + Math.random() * 20"
+        style="animation: float 15s infinite ease-in-out;">
+    </div>
+  </div>
+
+  <!-- Subscription Message Card -->
+  <div class="relative z-10 bg-gradient-to-br from-[#111827] to-[#1e293b] p-8 rounded-xl shadow-xl border border-gray-800 max-w-md w-full mx-4">
+    <div class="flex justify-center mb-6">
+      <div class="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center">
+        <i class="fas fa-robot text-2xl text-accent"></i>
+      </div>
+    </div>
+    
+    <h2 class="text-2xl font-bold text-white text-center mb-2">AI Assistant</h2>
+    
+    <!-- Different messages based on user role -->
+    <div *ngIf="userRole === 'OrganizationAdmin'">
+      <p class="text-gray-300 text-center mb-6">
+        Unlock the power of AI to enhance your OKR management experience. 
+        Subscribe now to access advanced AI features, personalized insights, and automate routine tasks.
+      </p>
+      
+      <div class="space-y-4 mb-6">
+        <div class="flex items-center">
+          <i class="fas fa-check-circle text-accent mr-3"></i>
+          <span class="text-gray-200">Smart OKR creation and optimization</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-check-circle text-accent mr-3"></i>
+          <span class="text-gray-200">AI-powered performance insights</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-check-circle text-accent mr-3"></i>
+          <span class="text-gray-200">Automate task creation and analysis</span>
+        </div>
+      </div>
+      
+      <button 
+        (click)="navigateToSubscription()" 
+        class="w-full py-3 px-4 bg-gradient-to-r from-accent to-accent/90 text-primary font-medium rounded-lg flex items-center justify-center space-x-2 hover:from-accent-hover hover:to-accent transition-all duration-300 shadow-lg hover:shadow-accent/20">
+        <i class="fas fa-crown mr-2"></i>
+        <span>Subscribe Now</span>
+      </button>
+    </div>
+    
+    <div *ngIf="userRole === 'TeamManager' || userRole === 'Collaborator'">
+      <p class="text-gray-300 text-center mb-6">
+        Your organization doesn't have an active subscription that includes AI Assistant features.
+      </p>
+      
+      <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-4 mb-6">
+        <p class="text-gray-300 text-center">
+          Please contact your organization administrator to upgrade the subscription plan to access AI features.
+        </p>
+      </div>
+      
+      <button 
+        (click)="navigateToHome()" 
+        class="w-full py-3 px-4 bg-gray-700 text-white font-medium rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-600 transition-all duration-300">
+        <i class="fas fa-arrow-left mr-2"></i>
+        <span>Return to Dashboard</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Chat UI - Only shown when subscription is valid -->
+<div *ngIf="!isCheckingSubscription && hasValidSubscription" class="flex h-screen w-screen overflow-hidden bg-[#0d1526]">
+  <!-- Back to Home button in top right corner -->
+  <button 
+    *ngIf="!hasValidSubscription"
+    (click)="navigateToHome()" 
+    class="absolute top-4 right-4 py-2 px-4 bg-accent text-primary font-medium rounded-lg flex items-center justify-center space-x-2 hover:bg-accent-hover transition-all duration-300 shadow-lg z-50">
+    <i class="fas fa-arrow-left mr-2"></i>
+    <span>Back to Home</span>
+  </button>
+  
+  <!-- Sidebar Navigation - Refined and more compact -->
+  <div class="w-60 bg-gradient-to-b from-[#111827] to-[#0f172a] flex flex-col h-full border-r border-gray-800/70 shadow-md z-10">
+    <!-- Logo and Title - More compact header -->
+    <div class="p-4 flex items-center gap-3 border-b border-gray-800/80">
+      <div class="w-8 h-8 bg-gradient-to-br from-accent to-accent/80 rounded-md flex items-center justify-center shadow-md">
+        <i class="fas fa-robot text-sm text-primary"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-white flex items-center gap-1.5">
+          OKR Assistant
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Beta</span>
+        </h1>
+        <p class="text-xs text-gray-400">AI-Powered Goal Management</p>
+      </div>
+    </div>
+    
+    <!-- New Chat Button - More subtle styling -->
+    <div class="px-3 py-3">
+      <button 
+        (click)="resetChat()" 
+        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent to-accent/90 hover:from-accent-hover hover:to-accent text-primary px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-accent/10">
+        <i class="fas fa-plus text-xs"></i>
+        <span>New Conversation</span>
+      </button>
+    </div>
+    
+    <!-- Navigation Section - More refined heading -->
+    <div class="px-3 pt-3 pb-1.5 text-[10px] font-medium text-gray-500 uppercase tracking-wider flex items-center">
+      <span>Navigation</span>
+      <div class="flex-grow ml-2 h-px bg-gray-800/60"></div>
+    </div>
+    
+    <!-- Menu Items - More compact spacing -->
+    <div class="px-3 space-y-0.5">
+      <!-- Chat Option -->
+      <button
+        (click)="setActiveView('chat')"
+        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all duration-200"
+         [ngClass]="{
+          'bg-gradient-to-r from-accent/15 to-transparent border-l-2 border-accent shadow-sm': activeView === 'chat',
+           'text-white font-medium': activeView === 'chat',
+          'hover:bg-gray-800/70 text-gray-400': activeView !== 'chat'
+        }"
+      >
+        <i class="fas fa-comment-dots w-4 text-center" [ngClass]="{'text-accent': activeView === 'chat'}"></i>
+        <span>Chat</span>
+      </button>
+      
+      <!-- AI Agents Option - COMMENTED OUT -->
+      <!--
+      <button
+        (click)="setActiveView('agents')"
+        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all duration-200"
+              [ngClass]="{
+          'bg-gradient-to-r from-accent/15 to-transparent border-l-2 border-accent shadow-sm': activeView === 'agents',
+                'text-white font-medium': activeView === 'agents',
+          'hover:bg-gray-800/70 text-gray-400': activeView !== 'agents'
+        }"
+      >
+        <i class="fas fa-user-friends w-4 text-center" [ngClass]="{'text-accent': activeView === 'agents'}"></i>
+        <span>AI Agents</span>
+      </button>
+      -->
+      
+      <!-- Prompts Option -->
+      <button
+        (click)="setActiveView('prompts')"
+        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all duration-200"
+             [ngClass]="{
+          'bg-gradient-to-r from-accent/15 to-transparent border-l-2 border-accent shadow-sm': activeView === 'prompts',
+          'text-white font-medium': activeView === 'prompts',
+          'hover:bg-gray-800/70 text-gray-400': activeView !== 'prompts'
+        }"
+      >
+        <i class="fas fa-lightbulb w-4 text-center" [ngClass]="{'text-accent': activeView === 'prompts'}"></i>
+        <span>Prompts</span>
+      </button>
+      
+      <!-- Automations Option - COMMENTED OUT -->
+      <!--
+      <button
+        (click)="setActiveView('automations')"
+        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all duration-200"
+             [ngClass]="{
+          'bg-gradient-to-r from-accent/15 to-transparent border-l-2 border-accent shadow-sm': activeView === 'automations',
+               'text-white font-medium': activeView === 'automations',
+          'hover:bg-gray-800/70 text-gray-400': activeView !== 'automations'
+        }"
+      >
+        <i class="fas fa-robot w-4 text-center" [ngClass]="{'text-accent': activeView === 'automations'}"></i>
+        <span>Automations</span>
+      </button>
+      -->
+    </div>
+    
+    <!-- Divider - Thinner and more subtle -->
+    <div class="px-3 mt-2">
+      <div class="h-px bg-gray-800/60"></div>
+  </div>
+  
+    <!-- Recent Conversations - More refined heading -->
+    <div class="px-3 pt-3 pb-1.5 text-[10px] font-medium text-gray-500 uppercase tracking-wider flex items-center justify-between">
+      <span>Recent Conversations</span>
+      <div class="flex items-center">
+        <!-- Add a delete all button -->
+        <button 
+          *ngIf="sessions.length > 0"
+          (click)="deleteAllConversations()"
+          class="ml-2 p-1 rounded-md hover:bg-red-900/30 text-gray-500 hover:text-red-400 transition-colors"
+          [disabled]="isDeletingAllConversations"
+          title="Delete all conversations">
+          <i *ngIf="!isDeletingAllConversations" class="fas fa-trash-alt text-[9px]"></i>
+          <svg *ngIf="isDeletingAllConversations" class="animate-spin h-3 w-3 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          </button>
+        <div class="ml-2 h-px w-4 bg-gray-800/60"></div>
+      </div>
+          </div>
+
+    <!-- Recent conversations list - More compact -->
+    <div class="px-3 overflow-y-auto flex-1 hide-scrollbar">
+      <div class="py-1 space-y-0.5">
+        <!-- Dynamic sessions from the sessions array -->
+        <div 
+          *ngFor="let session of sessions"
+          class="flex items-center w-full rounded-md group transition-all duration-300 ease-in-out"
+          [ngClass]="{
+            'bg-accent/15': currentSession?.id === session.id,
+            'hover:bg-gray-800/70': currentSession?.id !== session.id,
+            'scale-100 opacity-100': !(isDeletingConversation && conversationToDeleteId === session.id),
+            'scale-95 opacity-50': isDeletingConversation && conversationToDeleteId === session.id
+          }">
+          <button 
+            (click)="setCurrentSession(session)"
+            class="flex-1 text-left px-2.5 py-2 text-xs flex items-center gap-2 truncate transition-all duration-200"
+            [ngClass]="{
+              'text-white font-medium': currentSession?.id === session.id,
+              'text-gray-400 hover:text-white': currentSession?.id !== session.id
+            }">
+            <div class="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                 [ngClass]="{
+                   'bg-accent/30': currentSession?.id === session.id,
+                   'bg-gray-700/60 group-hover:bg-gray-600/80': currentSession?.id !== session.id
+                 }">
+              <i class="fas fa-history text-[9px] transition-colors"
+                 [ngClass]="{
+                   'text-white': currentSession?.id === session.id,
+                   'text-gray-400 group-hover:text-white': currentSession?.id !== session.id
+                 }"></i>
+            </div>
+            <span class="truncate">{{ session.title }}</span>
+          </button>
+          <!-- Delete conversation button -->
+                <button
+            (click)="deleteConversation(session.id)"
+            class="p-1.5 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-900/30 rounded transition-all duration-200 mr-1"
+            [disabled]="isDeletingConversation && conversationToDeleteId === session.id"
+            title="Delete conversation">
+            <i *ngIf="!(isDeletingConversation && conversationToDeleteId === session.id)" class="fas fa-times"></i>
+            <svg *ngIf="isDeletingConversation && conversationToDeleteId === session.id" class="animate-spin h-3 w-3 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Display a message when no sessions exist -->
+        <div *ngIf="sessions.length === 0" class="text-xs text-gray-500 px-2.5 py-2 text-center">
+          No recent conversations
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile Section - More subtle and refined -->
+    <div class="p-3 border-t border-gray-800/60 mt-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center text-primary font-semibold text-xs shadow-sm">
+            {{userInitials}}
+          </div>
+          <div class="ml-2.5">
+            <div class="text-xs font-medium text-white">{{userName}}</div>
+            <div class="text-[10px] text-gray-500">Admin User</div>
+          </div>
+        </div>
+        <button class="p-1 rounded-md hover:bg-gray-700/80 text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-cog text-xs"></i>
+        </button>
+      </div>
+    </div>
+        </div>
+        
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col h-full w-full">
+    <!-- Top Header for main content -->
+    <div class="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-[#111827]/90 to-[#1e293b]/90 border-b border-gray-800/50 animate-fadeInDown shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 bg-gradient-to-br from-accent/90 to-accent/80 rounded-md flex items-center justify-center shadow-sm overflow-hidden">
+          <!-- Generic AI robot icon instead of agent-specific icon -->
+          <i class="fas fa-robot text-xs text-primary"></i>
+            </div>
+        <span class="text-base font-medium text-white">AI Assistant</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 font-medium">AI</span>
+                  </div>
+      <div class="flex items-center gap-2">
+        <!-- Voice Settings Dropdown -->
+        <div class="relative" #voiceSettingsDropdown>
+          <button 
+            (click)="showVoiceSettings = !showVoiceSettings"
+            class="px-2 py-1.5 rounded-md border border-gray-700/60 bg-gray-800/50 hover:bg-gray-700/60 text-white text-xs transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md group">
+            <i class="fas fa-cog text-accent group-hover:text-white transition-colors text-[10px]"></i>
+            <span>Voice</span>
+            <i class="fas fa-chevron-down text-[8px] ml-1" [class.rotate-180]="showVoiceSettings"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div *ngIf="showVoiceSettings" 
+               class="absolute top-full right-0 mt-2 w-72 bg-[#1a2236] border border-gray-700/60 rounded-lg shadow-xl z-50 animate-fadeIn">
+            <div class="p-4">
+              <h3 class="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                <i class="fas fa-volume-up text-accent text-xs"></i>
+                Voice Settings
+              </h3>
+              
+              <!-- Text-to-Speech Toggle -->
+              <div class="mb-4">
+                <label class="flex items-center justify-between">
+                  <span class="text-xs text-gray-300">Enable Voice Responses</span>
+                  <button 
+                    (click)="toggleTextToSpeech()"
+                    class="relative inline-flex h-4 w-7 items-center rounded-full transition-colors"
+                    [class.bg-accent]="isTextToSpeechEnabled"
+                    [class.bg-gray-600]="!isTextToSpeechEnabled">
+                    <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+                          [class.translate-x-3]="isTextToSpeechEnabled"
+                          [class.translate-x-0.5]="!isTextToSpeechEnabled"></span>
+                  </button>
+                </label>
+              </div>
+
+              <!-- Voice Selection -->
+              <div class="mb-4" *ngIf="isTextToSpeechEnabled">
+                <label class="block text-xs text-gray-300 mb-1">Voice</label>
+                <select 
+                  [(ngModel)]="selectedVoice"
+                  class="w-full bg-gray-800/80 border border-gray-600 rounded text-xs text-white px-2 py-1">
+                  <option *ngFor="let voice of availableVoices" [ngValue]="voice">
+                    {{ voice.name }} ({{ voice.lang }})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Speech Rate -->
+              <div class="mb-4" *ngIf="isTextToSpeechEnabled">
+                <label class="block text-xs text-gray-300 mb-1">Speech Speed: {{ speechRate }}x</label>
+                <input 
+                  type="range" 
+                  min="0.5" 
+                  max="2" 
+                  step="0.1"
+                  [(ngModel)]="speechRate"
+                  class="w-full h-1 bg-gray-600 rounded-lg slider">
+              </div>
+
+              <!-- Volume -->
+              <div class="mb-3" *ngIf="isTextToSpeechEnabled">
+                <label class="block text-xs text-gray-300 mb-1">Volume: {{ (speechVolume * 100) | number:'1.0-0' }}%</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="1" 
+                  step="0.1"
+                  [(ngModel)]="speechVolume"
+                  class="w-full h-1 bg-gray-600 rounded-lg slider">
+              </div>
+
+              <!-- Test Button -->
+              <button 
+                *ngIf="isTextToSpeechEnabled"
+                (click)="testVoice()"
+                class="w-full px-3 py-1.5 bg-accent/10 border border-accent/20 rounded text-accent hover:bg-accent/20 transition-colors text-xs">
+                <i class="fas fa-play text-[10px] mr-1"></i>
+                Test Voice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button (click)="navigateToHome()" class="px-3 py-1.5 rounded-md border border-gray-700/60 bg-gray-800/50 hover:bg-gray-700/60 text-white text-xs transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md group">
+          <i class="fas fa-home text-accent group-hover:text-white transition-colors text-[10px]"></i>
+          <span>Back to Home</span>
+                </button>
+                  </div>
+                </div>
+                
+    <!-- Chat View -->
+    <app-chat-view 
+      *ngIf="activeView === 'chat'" 
+      [messages]="messages"
+      [loading]="loading"
+      [error]="error"
+      [isListening]="isListening"
+      [messageContent]="messageInput.value"
+      [isUploading]="isFileUploading"
+      [isTextToSpeechEnabled]="isTextToSpeechEnabled"
+      [isSpeaking]="isSpeaking"
+      [smartReplies]="smartReplies"
+      [showSmartReplies]="showSmartReplies"
+      [isTyping]="isTyping"
+      [typingMessage]="typingMessage"
+      (sendMessageEvent)="sendMessage($event)"
+      (resetChatEvent)="resetChat()"
+      (startSpeechEvent)="startSpeechToText()"
+      (fileUploadEvent)="handleFileUpload($event)"
+      (toggleTtsEvent)="toggleTextToSpeech()"
+      (stopSpeakingEvent)="stopSpeaking()"
+      (useSmartReplyEvent)="useSmartReply($event)"
+      (hideSmartRepliesEvent)="hideSmartReplies()"
+      (skipTypingEvent)="skipTypingAnimation()"
+      class="flex flex-col flex-1 w-full">
+    </app-chat-view>
+
+    <!-- AI Agents View - COMMENTED OUT -->
+    <!--
+    <app-agents-view
+      *ngIf="activeView === 'agents'"
+      [selectedAgentId]="selectedAgentId"
+      (agentSelected)="selectAgent($event)"
+      (backToChat)="setActiveView('chat')"
+      class="flex flex-col h-full w-full">
+    </app-agents-view>
+    -->
+
+    <!-- Prompts View -->
+    <app-prompts-view
+      *ngIf="activeView === 'prompts'"
+      (promptSelected)="useSuggestedPrompt($event)"
+      (backToChat)="setActiveView('chat')"
+      class="flex flex-col h-full w-full">
+    </app-prompts-view>
+
+    <!-- Automations View - COMMENTED OUT -->
+    <!--
+    <app-automations-view
+      *ngIf="activeView === 'automations'"
+      [automations]="automations"
+      (automationToggled)="toggleAutomation($event)"
+      (backToChat)="setActiveView('chat')"
+      class="flex flex-col h-full w-full">
+    </app-automations-view>
+    -->
+              </div>
+            </div>
+            
+<!-- Delete Conversation Confirmation Modal -->
+<app-modal 
+  [isOpen]="showDeleteConversationModal" 
+  [useDarkTheme]="true"
+  title="Delete Conversation"
+  (closeModal)="closeDeleteModals()">
+  <div class="p-6 bg-[#0d1526] rounded-b-xl">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-red-900/20 flex items-center justify-center">
+        <i class="fas fa-trash-alt text-red-400 text-lg"></i>
+                    </div>
+      <div class="ml-4 flex-1">
+        <h3 class="text-base font-medium text-white">Delete Conversation</h3>
+        <p class="mt-2 text-sm text-gray-400">Are you sure you want to delete this conversation? This action cannot be undone.</p>
+                  </div>
+                </div>
+                
+    <div class="mt-6 flex justify-end items-center gap-3">
+      <button (click)="closeDeleteModals()"
+              class="px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700/70 border border-gray-700/30 rounded-md text-white text-sm transition-colors shadow-sm"
+              [disabled]="isDeletingConversation">
+        Cancel
+                  </button>
+      <button (click)="confirmDeleteConversation()"
+              class="px-3 py-1.5 bg-red-500/90 hover:bg-red-600/90 active:bg-red-700/90 rounded-md text-white text-sm flex items-center gap-1.5 transition-colors shadow-sm"
+              [disabled]="isDeletingConversation">
+        <span *ngIf="!isDeletingConversation">
+          <i class="fas fa-trash-alt text-xs mr-1.5"></i>
+          Delete
+        </span>
+        <span *ngIf="isDeletingConversation" class="flex items-center">
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Deleting...
+        </span>
+                  </button>
+                </div>
+              </div>
+</app-modal>
+
+<!-- Delete All Conversations Confirmation Modal -->
+<app-modal 
+  [isOpen]="showDeleteAllModal" 
+  [useDarkTheme]="true"
+  title="Delete All Conversations"
+  (closeModal)="closeDeleteModals()">
+  <div class="p-6 bg-[#0d1526] rounded-b-xl">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-red-900/20 flex items-center justify-center">
+        <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
+      </div>
+      <div class="ml-4 flex-1">
+        <h3 class="text-base font-medium text-white">Delete All Conversations</h3>
+        <p class="mt-2 text-sm text-gray-400">Are you sure you want to delete all conversations? This action cannot be undone and will permanently remove all your chat history.</p>
+            </div>
+          </div>
+          
+    <div class="mt-6 flex justify-end items-center gap-3">
+      <button (click)="closeDeleteModals()"
+              class="px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700/70 border border-gray-700/30 rounded-md text-white text-sm transition-colors shadow-sm"
+              [disabled]="isDeletingAllConversations">
+        Cancel
+      </button>
+      <button (click)="confirmDeleteAllConversations()"
+              class="px-3 py-1.5 bg-red-500/90 hover:bg-red-600/90 active:bg-red-700/90 rounded-md text-white text-sm flex items-center gap-1.5 transition-colors shadow-sm"
+              [disabled]="isDeletingAllConversations">
+        <span *ngIf="!isDeletingAllConversations">
+          <i class="fas fa-trash-alt text-xs mr-1.5"></i>
+          Delete All
+        </span>
+        <span *ngIf="isDeletingAllConversations" class="flex items-center">
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Deleting...
+        </span>
+              </button>
+    </div>
+  </div>
+</app-modal>
+
+<style>
+  /* Add any necessary animations that might not be in your global styles */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  @keyframes typing1 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  @keyframes typing2 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  @keyframes typing3 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  @keyframes waveform {
+    0%, 100% { height: 20px; }
+    50% { height: 45px; }
+  }
+  
+  .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+  .animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }
+  .animate-fadeInDown { animation: fadeInDown 0.5s ease-out; }
+  .animate-float { animation: float 3s ease-in-out infinite; }
+  .animate-typing1 { animation: typing1 1s infinite 0.2s; }
+  .animate-typing2 { animation: typing2 1s infinite 0.4s; }
+  .animate-typing3 { animation: typing3 1s infinite 0.6s; }
+  .animate-pulse-subtle { animation: pulse 2s infinite; }
+  .animate-waveform { animation: waveform 1.2s ease-in-out infinite; }
+  
+  /* Disabled button styling */
+  button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+</style> 

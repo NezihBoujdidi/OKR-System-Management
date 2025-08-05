@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OKR</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Removed restrictive CSP meta tag -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Enhanced warning suppression before Stripe loads -->
+  <script>
+    // Silence all Stripe warnings in development by overriding console methods before Stripe loads
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const originalConsoleWarn = console.warn;
+      const originalConsoleError = console.error;
+      const originalConsoleLog = console.log;
+
+      // Override console.warn to filter Stripe warnings
+      console.warn = function(...args) {
+        // Skip all Stripe or HTTPS related warnings
+        if (args.length > 0 && typeof args[0] === 'string' && (
+            args[0].includes('Stripe') || 
+            args[0].includes('stripe') || 
+            args[0].includes('HTTPS') || 
+            args[0].includes('https') ||
+            args[0].includes('HTTP'))) {
+          return;
+        }
+        originalConsoleWarn.apply(console, args);
+      };
+
+      // Also catch Stripe errors that might come through console.error
+      console.error = function(...args) {
+        if (args.length > 0 && typeof args[0] === 'string' && (
+            args[0].includes('Stripe') || 
+            args[0].includes('stripe') || 
+            args[0].includes('HTTPS'))) {
+          return;
+        }
+        originalConsoleError.apply(console, args);
+      };
+
+      // Also catch log messages about Stripe
+      console.log = function(...args) {
+        if (args.length > 0 && typeof args[0] === 'string' && (
+            args[0].includes('Stripe') || 
+            args[0].includes('stripe') || 
+            args[0].includes('HTTPS'))) {
+          return;
+        }
+        originalConsoleLog.apply(console, args);
+      };
+
+      // Create a MutationObserver to remove any Stripe warning banners from the DOM
+      window.addEventListener('DOMContentLoaded', () => {
+        const observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.addedNodes.length) {
+              for (const node of mutation.addedNodes) {
+                if (node.nodeType === 1) { // Only process Element nodes
+                  // Use proper Element check without TypeScript type assertion
+                  const element = node;
+                  if (element.textContent && 
+                      element.textContent.includes('Stripe') && 
+                      element.textContent.includes('HTTPS')) {
+                    element.parentNode && element.parentNode.removeChild(element);
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Start observing the body for Stripe warning banners
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    }
+  </script>
+  
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  
+  <!-- Jitsi Meet External API -->
+  <script src="https://meet.jit.si/external_api.js"></script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

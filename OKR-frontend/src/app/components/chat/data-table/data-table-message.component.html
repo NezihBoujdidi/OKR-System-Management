@@ -1,0 +1,99 @@
+<div *ngIf="dataType === 'sessions'" class="mt-4 mb-1">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center text-accent shadow-sm border border-accent/20">
+      <i class="fas fa-table text-xs"></i>
+    </div>
+    <h3 class="text-sm font-medium text-white">OKR Sessions</h3>
+  </div>
+  
+  <app-data-table 
+    [data]="tableData" 
+    [config]="tableConfig"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [serverPagination]="useServerPagination"
+    (rowClick)="onRowClick($event)"
+    (serverPageChange)="onServerPageChange($event)">
+  </app-data-table>
+</div>
+
+<div *ngIf="dataType === 'objectives'" class="mt-4 mb-1">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center text-accent shadow-sm border border-accent/20">
+      <i class="fas fa-bullseye text-xs"></i>
+    </div>
+    <h3 class="text-sm font-medium text-white">Objectives</h3>
+  </div>
+  
+  <app-data-table 
+    [data]="tableData" 
+    [config]="tableConfig"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [serverPagination]="useServerPagination"
+    (rowClick)="onRowClick($event)"
+    (serverPageChange)="onServerPageChange($event)">
+  </app-data-table>
+</div>
+
+<div *ngIf="dataType === 'keyresults'" class="mt-4 mb-1">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center text-accent shadow-sm border border-accent/20">
+      <i class="fas fa-check-circle text-xs"></i>
+    </div>
+    <h3 class="text-sm font-medium text-white">Key Results</h3>
+  </div>
+  
+  <app-data-table 
+    [data]="tableData" 
+    [config]="tableConfig"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [serverPagination]="useServerPagination"
+    (rowClick)="onRowClick($event)"
+    (serverPageChange)="onServerPageChange($event)">
+  </app-data-table>
+</div>
+
+<div *ngIf="dataType === 'keyresulttasks'" class="mt-4 mb-1">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center text-accent shadow-sm border border-accent/20">
+      <i class="fas fa-tasks text-xs"></i>
+    </div>
+    <h3 class="text-sm font-medium text-white">Tasks</h3>
+  </div>
+  
+  <app-data-table 
+    [data]="tableData" 
+    [config]="tableConfig"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [serverPagination]="useServerPagination"
+    (rowClick)="onRowClick($event)"
+    (serverPageChange)="onServerPageChange($event)">
+  </app-data-table>
+</div>
+
+<div *ngIf="dataType === 'teams'" class="mt-4 mb-1">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center text-accent shadow-sm border border-accent/20">
+      <i class="fas fa-users text-xs"></i>
+    </div>
+    <h3 class="text-sm font-medium text-white">Teams</h3>
+  </div>
+  
+  <app-data-table 
+    [data]="tableData" 
+    [config]="tableConfig"
+    [pageSize]="pageSize"
+    [currentPage]="currentPage"
+    [totalItems]="totalItems"
+    [serverPagination]="useServerPagination"
+    (rowClick)="onRowClick($event)"
+    (serverPageChange)="onServerPageChange($event)">
+  </app-data-table>
+</div> 

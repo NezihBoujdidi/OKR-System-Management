@@ -1,0 +1,7 @@
+<div class="flex min-h-screen">
+  <app-navigation-sidebar (buttonClicked)="onNavigationButtonClicked($event)"></app-navigation-sidebar>
+  <app-content-sidebar #contentSidebar activeSection="{{activeSection}}"></app-content-sidebar>
+  <div class="flex-1">
+    <router-outlet></router-outlet>
+  </div>
+</div> 

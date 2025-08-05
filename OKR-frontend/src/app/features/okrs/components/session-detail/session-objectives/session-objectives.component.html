@@ -1,0 +1,501 @@
+<style>
+  /* Highlight styles for clicked elements from diagram */
+  .highlight-element {
+    animation: pulse-highlight 2s infinite !important;
+    border: 2px solid #4f46e5 !important;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.7) !important;
+    position: relative !important;
+    z-index: 50 !important;
+    background-color: rgba(79, 70, 229, 0.05) !important;
+  }
+  
+  @keyframes pulse-highlight {
+    0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.8); }
+    50% { box-shadow: 0 0 0 20px rgba(79, 70, 229, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+  }
+
+  /* Hide modal title but keep the close button */
+  app-modal h3#modal-title {
+    display: none !important;
+  }
+  
+  /* Adjust modal header padding */
+  app-modal .bg-white.px-4.pt-5.pb-4 {
+    padding: 0 !important;
+  }
+  
+  /* Ensure the modal content has proper spacing */
+  app-modal .bg-white.p-4 {
+    padding-top: 0 !important;
+  }
+
+  /* Ensure the close button remains visible */
+  .objective-modal-header {
+    display: flex !important;
+    justify-content: flex-end !important;
+    padding: 0.75rem 1rem 0 !important;
+  }
+
+  /* Hide the default modal header for objective forms */
+  .modal-objective-custom ~ div > div:first-child {
+    display: none !important;
+  }
+  
+  /* Adjust the modal content padding for objective forms */
+  .modal-objective-custom {
+    margin-top: -10px; /* Negative margin to compensate for removed header */
+  }
+</style>
+
+<div class="space-y-10">
+  <!-- Paper-like Header Section -->
+  <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6 relative overflow-hidden" style="background-image: linear-gradient(0deg, rgba(249, 250, 251, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);">
+    <!-- Decorative corner fold -->
+    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-gray-100 to-white transform rotate-90"></div>
+    <div class="absolute top-0 right-0 w-8 h-8 bg-gradient-to-br from-gray-200 to-gray-100 transform rotate-90"></div>
+    
+    <!-- Left side decorative line -->
+    <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-red-400/20"></div>
+    
+    <div class="p-6 relative">
+      <!-- Header Content -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-4">
+          <h1 class="text-2xl font-semibold text-gray-900 flex items-center gap-3">
+            <span class="relative">
+              Session Objectives
+              <!-- Underline decoration -->
+              <span class="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-to-r from-yellow-400/60 to-yellow-400/0"></span>
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200/50">
+              {{ objectives.length }} Total
+            </span>
+          </h1>
+      </div>
+        
+        <div class="flex items-center gap-3">
+        <button (click)="exportToPdf()"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow">
+            <svg class="w-4 h-4 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z" />
+              <path d="M3 8a2 2 0 012-2h2.93a.25.25 0 01.25.25v1.5a.25.25 0 01-.25.25H5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h10a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-2.93a.25.25 0 01-.25-.25v-1.5a.25.25 0 01.25-.25H15a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+          </svg>
+          Export PDF
+        </button>
+          
+        <button *ngIf="!isCollaborator()" (click)="addObjective()"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-lg hover:from-yellow-500 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all shadow-sm hover:shadow">
+            <svg class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+            New Objective
+        </button>
+      </div>
+    </div>
+      
+      <p class="text-sm text-gray-500 mb-6 pl-1">Track and manage objectives for this OKR session</p>
+
+      <!-- Collaborator Notice Banner -->
+      <div *ngIf="isCollaborator()" class="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">
+              <span class="font-medium">View-only mode:</span> As a Collaborator, you can view but cannot add, edit, or delete objectives, key results, or tasks.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Cards Grid with Paper Effect -->
+      <div class="grid grid-cols-4 gap-4">
+        <!-- Total Objectives Card -->
+        <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <!-- Decorative corner fold -->
+          <div class="absolute top-0 right-0 w-8 h-8 bg-gradient-to-br from-gray-100 to-white transform rotate-90"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Objectives</p>
+              <h3 class="mt-1 text-2xl font-semibold text-gray-900">{{ objectives.length }}</h3>
+            </div>
+            <div class="p-2 bg-yellow-50 rounded-lg border border-yellow-100/50 shadow-sm">
+              <svg class="w-6 h-6 text-yellow-600" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm text-gray-500">Session Progress</p>
+            <div class="mt-1 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
+              <div class="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full transition-all duration-500" [style.width.%]="okrSession.progress || 0"></div>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">{{ okrSession.progress || 0 }}%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Objectives List -->
+  <div class="space-y-8">
+    <div *ngFor="let objective of objectives"
+         [id]="'objective-' + objective.id"
+         class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 border border-gray-100 overflow-hidden">
+      <!-- Enhanced Objective Header -->
+      <div class="p-6 border-l-4" [ngClass]="{
+        'border-green-500': objective.status === Status.InProgress,
+        'border-yellow-500': objective.status === Status.Overdue,
+        'border-blue-500': objective.status === Status.Completed,
+        'border-gray-300': objective.status === Status.NotStarted || !objective.status
+      }">
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <h3 class="text-lg font-semibold text-gray-900">{{ objective.title }}</h3>
+              <span [class]="'px-2.5 py-1 text-xs font-medium rounded-full ' + getStatusColor(objective.status)">
+                {{ objective.status === Status.Completed ? 'Completed' : 
+                   objective.status === Status.InProgress ? 'In Progress' :
+                   objective.status === Status.Overdue ? 'Overdue' : 'Not Started' }}
+              </span>
+            </div>
+            <p class="text-gray-600">{{ objective.description }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button *ngIf="canDoActionsObjective(objective)" (click)="editObjective(objective)" 
+                    class="p-2 text-gray-400 hover:text-primary rounded-lg hover:bg-gray-50 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+              </svg>
+            </button>
+            <button *ngIf="canDoActionsObjective(objective)" (click)="deleteObjective(objective)" 
+                    class="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Enhanced Progress and Meta -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-6">
+            <ng-container *ngIf="objective.responsibleTeamId">
+              <ng-container *ngIf="teamManagers[objective.responsibleTeamId] as manager">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span class="text-sm font-medium text-primary">{{ manager.firstName.charAt(0) }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-gray-900">{{ manager.firstName }}</span>
+                    <span class="text-xs text-gray-500">Team Manager</span>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-gray-900">
+                {{ objective.startedDate | date }} - {{ objective.endDate | date }}
+              </span>
+              <span class="text-xs text-gray-500">Timeline</span>
+            </div>
+          </div>
+          
+          <!-- Objective Progress Bar -->
+          <div class="mt-1">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-medium text-gray-700">Objective Progress</span>
+              <span class="text-sm font-medium text-gray-900">{{ objective.progress || 0 }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div [style.width.%]="objective.progress || 0" 
+                   [ngClass]="getProgressClass(objective.progress || 0)"
+                   class="h-2.5 rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Results Section -->
+      <div class="mt-4 p-4 pt-0">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-md font-medium text-gray-800">Key Results</h4>
+          <button *ngIf="canDoActionsObjective(objective)" (click)="addKeyResult(objective)" 
+                  class="px-3 py-1 text-xs font-medium text-primary bg-transparent border border-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Key Result
+          </button>
+        </div>
+        
+        <!-- Key Results List -->
+        <div *ngIf="getObjectiveKeyResults(objective.id) && getObjectiveKeyResults(objective.id).length > 0" class="space-y-4">
+          <div *ngFor="let keyResult of getObjectiveKeyResults(objective.id)"
+               [id]="'keyresult-' + keyResult.id"
+               class="border border-gray-100 rounded-lg p-4 bg-gray-50/50">
+            <div class="flex justify-between mb-3">
+              <h5 class="text-sm font-medium text-gray-900">{{ keyResult.title }}</h5>
+              <div class="flex items-center gap-2" *ngIf="canDoActionsKeyResult(objective.id)">
+                <button (click)="editKeyResult(objective.id, keyResult)" 
+                        class="p-1 text-gray-400 hover:text-primary rounded-lg hover:bg-gray-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
+                <button (click)="deleteKeyResult(objective.id, keyResult)" 
+                        class="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mb-3">{{ keyResult.description }}</p>
+            
+            <!-- Key Result Progress Bar -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-gray-700">Progress</span>
+                <span class="text-xs font-medium text-gray-900">{{ keyResult.progress || 0 }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div [style.width.%]="keyResult.progress || 0" 
+                     [ngClass]="getProgressClass(keyResult.progress || 0)"
+                     class="h-1.5 rounded-full transition-all duration-500"></div>
+              </div>
+            </div>
+            
+            <!-- Tasks Section -->
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <h6 class="text-xs font-medium text-gray-700">Tasks</h6>
+                <button *ngIf="canDoActionsTask(objective.id)" (click)="addTask(keyResult.id)" 
+                        class="px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Add Task
+                </button>
+              </div>
+
+              <!-- Tasks List -->
+              <div *ngIf="getKeyResultTasks(keyResult.id) && getKeyResultTasks(keyResult.id).length > 0" class="bg-white rounded-md border border-gray-100">
+                <div *ngFor="let task of getKeyResultTasks(keyResult.id); let last = last" 
+                     [id]="'task-' + task.id"
+                     class="p-3 flex items-center justify-between"
+                     [class.border-b]="!last" 
+                     [class.border-gray-100]="!last">
+                  <div class="flex items-center gap-3">
+                    <div class="flex-none" 
+                         [title]="canToggleTask(task) ? 'Click to mark as ' + (isTaskCompleted(task) ? 'incomplete' : 'complete') : 'Only the assigned collaborator can toggle this task'">
+                      <input type="checkbox" 
+                             [checked]="isTaskCompleted(task)"
+                             [disabled]="!canToggleTask(task)"
+                             (change)="toggleTaskStatus(keyResult.id, task.id)"
+                             class="rounded focus:ring-primary focus:ring-1"
+                             [ngClass]="{
+                               'text-primary hover:cursor-pointer': canToggleTask(task),
+                               'text-gray-300 cursor-not-allowed opacity-50': !canToggleTask(task)
+                             }">
+                    </div>
+                    <div>
+                      <p [class]="getTaskStatusClass(task) + ' text-sm transition-all'">
+                        {{task.title}}
+                      </p>
+                      <div class="flex items-center gap-3 mt-1">
+                        <span *ngIf="task.endDate" 
+                              [ngClass]="{'text-red-500': isTaskOverdue(task.endDate)}"
+                              class="text-xs text-gray-500 flex items-center gap-1">
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" 
+                                  stroke-linejoin="round" 
+                                  stroke-width="2" 
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                          {{task.endDate | date:'mediumDate'}}
+                          <span *ngIf="isTaskOverdue(task.endDate)" class="text-red-500 text-[10px] ml-1">(overdue)</span>
+                        </span>
+                        <div *ngIf="task.collaboratorId" 
+                             class="flex items-center gap-1.5">
+                          <div class="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-[10px] text-primary font-medium">
+                            {{ collaborators[task.collaboratorId].firstName.charAt(0) || 'C' }}
+                          </div>
+                          <span class="text-xs text-gray-700 font-medium">
+                            {{ getCollaboratorName(task.collaboratorId) }}
+                          </span>
+                          <span *ngIf="authStateService.getCurrentUser()?.id === task.collaboratorId" 
+                                class="text-xs px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full font-medium">
+                            You
+                            <span *ngIf="canToggleTask(task)" class="inline-block ml-1">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                              </svg>
+                              Click to {{ isTaskCompleted(task) ? 'uncomplete' : 'complete' }}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1" *ngIf="canDoActionsTask(objective.id)">
+                    <button (click)="editTask(objective.id, keyResult.id, task)" 
+                            class="p-1 text-gray-400 hover:text-primary rounded-md hover:bg-gray-50 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                      </svg>
+                    </button>
+                    <button (click)="deleteTask(objective.id, keyResult.id, task)" 
+                            class="p-1 text-gray-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty objectives state -->
+    <div *ngIf="objectives.length === 0" 
+         class="text-center p-8 bg-white rounded-xl border border-dashed border-gray-200">
+      <div class="max-w-sm mx-auto">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-700 mb-2">No objectives yet</h3>
+        <p class="text-sm text-gray-500 mb-4">Create your first objective to start tracking progress</p>
+        <button *ngIf="!isCollaborator()" (click)="addObjective()" 
+                class="px-4 py-2 text-accent bg-primary hover:bg-accent hover:text-primary rounded-lg transition-all">
+          Add Objective
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Updated Modal with Full Screen Blur Effect -->
+  <div class="fixed inset-0 z-[9999] overflow-y-auto"
+       [class.opacity-0]="!showNewObjectiveDrawer"
+       [class.hidden]="!showNewObjectiveDrawer">
+    <!-- Backdrop with blur -->
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+         (click)="closeObjectiveDrawer()"></div>
+    
+    <!-- Modal Container -->
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+      <!-- Modal Content -->
+      <div class="relative bg-white w-[600px] rounded-xl shadow-xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
+           [class.opacity-0]="!showNewObjectiveDrawer"
+           [class.translate-y-4]="!showNewObjectiveDrawer"
+           [class.opacity-100]="showNewObjectiveDrawer"
+           [class.translate-y-0]="showNewObjectiveDrawer"
+           (click)="$event.stopPropagation()">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 pb-4">
+          <h2 class="text-xl font-semibold text-gray-900">{{ selectedObjective ? 'Edit' : 'New' }} Objective</h2>
+          <button (click)="closeObjectiveDrawer()" 
+                  class="text-gray-400 hover:text-gray-500 focus:outline-none">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Form Content -->
+        <div class="px-6 pb-6">
+          <app-new-objective-form
+              [data]="selectedObjective"
+              [isEdit]="!!selectedObjective"
+              [isSubmitting]="isSubmitting"
+              [teams]="availableTeams"
+              [sessionId]="okrSession.id"
+              (onSubmit)="selectedObjective ? onObjectiveUpdate($event) : onObjectiveSubmit($event)"
+              (onCancel)="closeObjectiveDrawer()"
+              (onDelete)="onObjectiveDelete()">
+          </app-new-objective-form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-modal 
+      [isOpen]="showNewKeyResultModal"
+      [title]="selectedKeyResult ? 'Edit Key Result' : 'Add Key Result'"
+      [useDarkTheme]="false"
+      (close)="closeKeyResultModal()">
+      <app-new-key-result-form
+          [data]="selectedKeyResult"
+          [isEdit]="!!selectedKeyResult"
+          [objectiveId]="selectedObjectiveId"
+          [userId]="currentUserId"
+          (onSubmit)="selectedKeyResult ? onKeyResultUpdate($event) : onKeyResultSubmit($event)"
+          (onCancel)="closeKeyResultModal()"
+          (onDelete)="onKeyResultDelete()">
+      </app-new-key-result-form>
+  </app-modal>
+
+  <app-modal 
+      [isOpen]="showNewTaskModal"
+      [title]="selectedTask ? 'Edit Task' : 'Add Task'"
+      [useDarkTheme]="false"
+      (close)="closeTaskModal()">
+      <app-new-task-form
+          [data]="selectedTask"
+          [isEdit]="!!selectedTask"
+          (onSubmit)="selectedTask ? onTaskUpdate($event) : onTaskSubmit($event)"
+          (onCancel)="closeTaskModal()"
+          (onDelete)="onTaskDelete()">
+      </app-new-task-form>
+  </app-modal>
+
+  <app-notification
+    [show]="isNotificationVisible"
+    [message]="notificationMessage"
+    [type]="notificationType"
+    (closeNotification)="closeNotification()">
+  </app-notification>
+
+  <!-- PDF Export Modal -->
+  <app-pdf-export-modal
+    *ngIf="showPdfExportModal"
+    [isOpen]="showPdfExportModal"
+    [session]="okrSession"
+    [objectives]="objectives"
+    [owners]="objectiveOwners"
+    [keyResults]="objectiveKeyResults"
+    [tasks]="objectiveKeyResultTasks"
+    (close)="closePdfExportModal()">
+  </app-pdf-export-modal>
+
+  <!-- Add Confirmation Dialog at the end of the template -->
+  <app-confirmation-dialog
+    [isOpen]="showDeleteConfirmation"
+    [title]="deleteConfirmationTitle"
+    [message]="deleteConfirmationMessage"
+    confirmButtonText="Delete"
+    cancelButtonText="Cancel"
+    confirmButtonClass="bg-red-600 hover:bg-red-700"
+    [isLoading]="isDeleting"
+    (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()">
+  </app-confirmation-dialog>
+</div>

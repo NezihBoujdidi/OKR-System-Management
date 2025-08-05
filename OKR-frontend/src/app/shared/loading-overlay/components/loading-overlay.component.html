@@ -1,0 +1,66 @@
+<div *ngIf="show" 
+         class="fixed inset-0 bg-gradient-to-br from-white via-white/98 to-accent/5 backdrop-blur-md z-50 
+                flex items-center justify-center">
+      <div class="flex flex-col items-center relative">
+        <!-- Animated Background Rings -->
+        <div class="absolute -inset-10 -z-10">
+          <div class="absolute inset-0 bg-accent/5 rounded-full blur-3xl animate-pulse-slow"></div>
+          <div class="absolute inset-0 bg-primary/5 rounded-full blur-3xl animate-pulse-slow rotate-45 delay-500"></div>
+          <div class="absolute inset-0 bg-accent/3 rounded-full blur-2xl animate-spin-slow"></div>
+        </div>
+
+        <!-- Primary Spinner -->
+        <div class="w-32 h-32 mb-8 relative animate-float">
+          <!-- Outer glow -->
+          <div class="absolute inset-0 rounded-full bg-accent/10 blur-md scale-110"></div>
+          
+          <!-- Outer ring -->
+          <div class="absolute inset-0 rounded-full border-4 border-accent/20"></div>
+          
+          <!-- Middle ring -->
+          <div class="absolute inset-[4px] rounded-full border-4 border-accent/10 animate-spin-reverse"></div>
+          
+          <!-- Spinning ring -->
+          <div class="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin-fast"></div>
+          
+          <!-- Inner content -->
+          <div class="absolute inset-0 flex items-center justify-center animate-pulse-slow">
+            <svg class="w-12 h-12 text-accent drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="text-center space-y-3 relative">
+          <!-- Message glow effect -->
+          <div class="absolute inset-0 bg-accent/5 blur-xl -z-10"></div>
+          
+          <p class="text-2xl font-medium text-primary">
+            {{ message || 'Loading...' }}
+          </p>
+          <div class="flex items-center justify-center gap-2">
+            <div *ngFor="let i of [0, 1, 2]"
+                 class="w-2 h-2 rounded-full animate-bounce-custom"
+                 [ngStyle]="{
+                   'background-color': 'rgba(255, 215, 0, ' + (0.4 + (i * 0.2)) + ')',
+                   'animation-delay': i * 150 + 'ms'
+                 }">
+            </div>
+          </div>
+        </div>
+
+        <!-- Decorative particles -->
+        <div class="absolute inset-0 -z-10">
+          <div *ngFor="let particle of particlePositions" 
+               class="absolute w-1 h-1 bg-accent/30 rounded-full animate-float-particle"
+               [ngStyle]="{
+                 'top': particle.top + '%',
+                 'left': particle.left + '%',
+                 'animation-delay': particle.delay + 'ms'
+               }">
+          </div>
+        </div>
+      </div>
+</div>

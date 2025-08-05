@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  nxm.tensai.back.okr.api:
+    build:
+      context: .
+      dockerfile: ./NXM.Tensai.Back.OKR.API/Dockerfile
+    # Add DNS configuration to use reliable DNS servers
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=okr.postgres;Database=okr;Username=myuser;Password=mypassword
+      - JwtSettings__Secret=tRPyY0riE0SX2sL4bfGCL8FKPakDzIrSUlXnSlsvtadtfKUUiALYDjlojmL8+Jx/gknOt/my2KqJpMpgXQUfcA==
+      - JwtSettings__Issuer=https://jwpdgikqwfudfnemtxmt.supabase.co/auth/v1
+      - JwtSettings__Audience=authenticated
+      - SupabaseJwtSettings__JwtSecret=tRPyY0riE0SX2sL4bfGCL8FKPakDzIrSUlXnSlsvtadtfKUUiALYDjlojmL8+Jx/gknOt/my2KqJpMpgXQUfcA==
+      - SupabaseJwtSettings__PublicKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3cGRnaWtxd2Z1ZGZuZW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTkyNDcxODEsImV4cCI6MjAxNDgyMzE4MX0.dGQE8NdgHew2aQGTJMkLiW35KBrwh4ry3QxEQls3JQM
+      - SupabaseJwtSettings__Issuer=https://jwpdgikqwfudfnemtxmt.supabase.co/auth/v1
+      - SupabaseJwtSettings__Audience=authenticated
+      # Vector Store settings
+      - VectorStore__Qdrant__Endpoint=http://qdrant:6333
+      # HTTP client configuration to increase timeouts and retry policy
+      - HTTPCLIENT_TIMEOUT=30
+      - HTTPCLIENT_MAXRETRIES=3
+      # Add HTTP debugging for troubleshooting
+      - ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.Hosting.HttpLoggingMiddleware
+      - ASPNETCORE_HTTPLOGGING_ENABLEENHANCEDDEVELOPEREXPERIENCE=true
+    ports:
+      - "5001:80"
+    depends_on:
+      okr.postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+
+  okr.postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: okr
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - okr_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d okr"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    depends_on:
+      - okr.postgres
+
+  # Add Qdrant vector database for context memory
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"  # HTTP
+      - "6334:6334"  # GRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  okr_postgres_data:
+  pgadmin_data:
+  qdrant_data:

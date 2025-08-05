@@ -1,0 +1,231 @@
+<div class="flex">
+  <app-navigation-sidebar activeRoute="meetings"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="meetings"></app-content-sidebar>
+  
+  <!-- Main Content -->
+  <div class="ml-[312px] flex-1">
+    <!-- Meetings Page -->
+    <div class="min-h-screen bg-white text-primary">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Team Meetings</h1>
+            <p class="text-gray-600">Schedule and join live meeting sessions with your team</p>
+          </div>
+          <div class="flex gap-3">
+            <button 
+              (click)="startQuickMeeting()" 
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-all duration-200 flex items-center gap-2">
+              <i class="fas fa-video"></i>
+              <span>Start Instant Meeting</span>
+            </button>
+            <button 
+              (click)="openCreateMeetingModal()" 
+              class="px-4 py-2 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200 flex items-center gap-2">
+              <i class="fas fa-plus"></i>
+              <span>Schedule Meeting</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Team Members Available -->
+        <div *ngIf="users.length > 0" class="mb-10 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-semibold">Available Team Members</h2>
+          </div>
+          
+          <div class="p-6">
+            <div class="flex flex-wrap gap-3">
+              <div *ngFor="let user of users" 
+                  class="flex items-center px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center mr-3 text-accent font-medium">
+                  {{ user.name.charAt(0) }}
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">{{ user.name }}</p>
+                  <p class="text-xs text-gray-500">{{ user.role }}</p>
+                </div>
+                <button 
+                  (click)="inviteToQuickMeeting(user)" 
+                  class="ml-4 p-2 text-gray-600 hover:text-accent hover:bg-accent/10 rounded-full transition-all">
+                  <i class="fas fa-video"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-16">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+        </div>
+        
+        <!-- Meetings List -->
+        <div *ngIf="!isLoading && meetings.length > 0" class="grid grid-cols-1 gap-6 mt-8">
+          <!-- Meeting Cards -->
+          <div *ngFor="let meeting of meetings" class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div class="p-6">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-xl font-bold mb-2">{{ meeting.title }}</h3>
+                  <p class="text-gray-600 mb-4">{{ meeting.description }}</p>
+                  
+                  <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <i class="far fa-calendar mr-2"></i>
+                    <span>{{ meeting.scheduledTime | date: 'medium' }}</span>
+                  </div>
+                  
+                  <div class="flex items-center text-sm text-gray-500">
+                    <i class="far fa-user mr-2"></i>
+                    <span>Organized by: {{ meeting.organizer.name }}</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                  <button 
+                    *ngIf="meeting.status === 'scheduled'"
+                    (click)="startMeeting(meeting.id)" 
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-all duration-200">
+                    <i class="fas fa-video mr-2"></i>
+                    Join Now
+                  </button>
+                  
+                  <button 
+                    *ngIf="meeting.status === 'scheduled'"
+                    (click)="cancelMeeting(meeting.id)" 
+                    class="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-md transition-all duration-200">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Attendees -->
+              <div class="mt-4 pt-4 border-t border-gray-100">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Attendees</h4>
+                <div class="flex flex-wrap gap-2">
+                  <div *ngFor="let attendee of meeting.attendees" 
+                       class="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    <span class="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-xs mr-2">
+                      {{ attendee.name.charAt(0) }}
+                    </span>
+                    {{ attendee.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && meetings.length === 0" class="text-center py-16">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-video text-gray-400 text-xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">No meetings scheduled</h3>
+          <p class="text-gray-600 mb-6">Schedule your first meeting to get started</p>
+          <button 
+            (click)="openCreateMeetingModal()" 
+            class="px-4 py-2 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200">
+            Schedule Meeting
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Meeting Modal -->
+<div *ngIf="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 mx-4">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Schedule a Meeting</h2>
+      <button (click)="closeCreateMeetingModal()" class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="createMeeting()">
+      <!-- Title -->
+      <div class="mb-4">
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Meeting Title*</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title"
+          [(ngModel)]="newMeeting.title"
+          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent/50"
+          placeholder="Weekly Team Sync"
+          required>
+      </div>
+      
+      <!-- Description -->
+      <div class="mb-4">
+        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea 
+          id="description" 
+          name="description"
+          [(ngModel)]="newMeeting.description"
+          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent/50"
+          placeholder="Discuss team progress and blockers"
+          rows="3"></textarea>
+      </div>
+      
+      <!-- Date Time -->
+      <div class="mb-4">
+        <label for="scheduledTime" class="block text-sm font-medium text-gray-700 mb-1">Date & Time*</label>
+        <input 
+          type="datetime-local" 
+          id="scheduledTime" 
+          name="scheduledTime"
+          [(ngModel)]="newMeeting.scheduledTime"
+          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent/50"
+          required>
+      </div>
+      
+      <!-- Invitees -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Invite Team Members*</label>
+        <div class="max-h-48 overflow-y-auto border border-gray-300 rounded-md p-2">
+          <div *ngFor="let user of users" 
+               (click)="toggleUserSelection(user.id)"
+               [class.bg-accent-light]="newMeeting.invitees.includes(user.id)"
+               class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+            <input 
+              type="checkbox" 
+              [checked]="newMeeting.invitees.includes(user.id)" 
+              class="mr-3 accent-accent" 
+              (click)="$event.stopPropagation()">
+            <div>
+              <p class="font-medium">{{ user.name }}</p>
+              <p class="text-sm text-gray-500">{{ user.email }}</p>
+            </div>
+            <span class="ml-auto text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+              {{ user.role }}
+            </span>
+          </div>
+          
+          <div *ngIf="users.length === 0" class="p-4 text-center text-gray-500">
+            No team members available
+          </div>
+        </div>
+      </div>
+      
+      <!-- Submit Button -->
+      <div class="flex justify-end gap-3">
+        <button 
+          type="button" 
+          (click)="closeCreateMeetingModal()"
+          class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-all duration-200">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="!newMeeting.title || newMeeting.invitees.length === 0"
+          class="px-4 py-2 bg-accent hover:bg-accent/90 text-primary font-medium rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          Schedule Meeting
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

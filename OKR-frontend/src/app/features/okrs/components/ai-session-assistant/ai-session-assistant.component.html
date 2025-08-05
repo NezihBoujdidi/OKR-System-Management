@@ -1,0 +1,202 @@
+<div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+  <!-- Header with toggle -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"></path>
+          <circle cx="8" cy="14" r="1"></circle>
+          <circle cx="16" cy="14" r="1"></circle>
+          <path d="M9 18h6"></path>
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-base font-medium text-gray-900">AI Strategy Assistant</h3>
+        <p class="text-xs text-gray-500">Intelligent OKR planning and strategy recommendations</p>
+      </div>
+    </div>
+    <button 
+      type="button" 
+      (click)="toggleExpand()" 
+      class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full p-1 transition-colors"
+      [attr.aria-expanded]="isExpanded"
+      aria-controls="ai-assistant-content">
+      <svg *ngIf="!isExpanded" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+      <svg *ngIf="isExpanded" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Expandable Content -->
+  <div 
+    id="ai-assistant-content"
+    *ngIf="isExpanded" 
+    class="px-5 py-4 space-y-5">
+    
+    <!-- Prompt Input -->
+    <div class="space-y-2">
+      <label for="ai-prompt" class="block text-sm font-medium text-gray-700">What are your objectives for this session?</label>
+      <div class="relative">
+        <input 
+          type="text" 
+          id="ai-prompt" 
+          [formControl]="promptControl" 
+          class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all"
+          placeholder="e.g., Q3 market expansion and customer retention strategy">
+        <button 
+          *ngIf="promptControl.value" 
+          type="button"
+          (click)="promptControl.reset()"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="text-xs text-gray-500">Be specific about your goals, timeframe, and focus areas for better recommendations</p>
+    </div>
+    
+    <!-- Prompt Suggestions -->
+    <div>
+      <p class="text-xs font-medium text-gray-700 mb-2">Popular strategy frameworks:</p>
+      <div class="flex flex-wrap gap-2">
+        <button 
+          *ngFor="let suggestion of promptSuggestions"
+          type="button"
+          (click)="usePromptSuggestion(suggestion)"
+          class="text-xs px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-100 transition-colors">
+          {{ suggestion }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- Generate Button -->
+    <div class="flex justify-end">
+      <button 
+        type="button"
+        (click)="generateSuggestion()"
+        class="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
+        [disabled]="isLoading">
+        <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <svg *ngIf="!isLoading" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span>{{ isLoading ? 'Generating Strategy...' : 'Generate Strategy' }}</span>
+      </button>
+    </div>
+    
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        {{ errorMessage }}
+      </div>
+    </div>
+    
+    <!-- Generated Suggestions -->
+    <div *ngIf="suggestions.length > 0" class="space-y-6">
+      <div *ngFor="let suggestion of suggestions" class="rounded-xl overflow-hidden border border-blue-200 shadow-sm">
+        <!-- Suggestion Header -->
+        <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-lg font-semibold text-blue-900">{{ suggestion.title }}</h4>
+            <button 
+              type="button"
+              (click)="applySuggestion(suggestion)"
+              class="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
+              Apply to Form
+            </button>
+          </div>
+          <p class="text-sm text-blue-800">{{ suggestion.description }}</p>
+        </div>
+        
+        <!-- Suggestion Details -->
+        <div class="p-4 bg-white">
+          <!-- Key Focus Areas -->
+          <div class="mb-4" *ngIf="suggestion.keyFocusAreas && suggestion.keyFocusAreas.length > 0">
+            <h5 class="text-sm font-semibold text-gray-900 mb-2">Key Focus Areas</h5>
+            <ul class="space-y-2">
+              <li *ngFor="let focus of suggestion.keyFocusAreas" class="flex items-start">
+                <svg class="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-sm text-gray-700">{{ focus }}</span>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- Industry Insights -->
+          <div class="mb-4" *ngIf="suggestion.industryInsights && suggestion.industryInsights.length > 0">
+            <h5 class="text-sm font-semibold text-gray-900 mb-2">Industry Insights</h5>
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <ul class="space-y-2">
+                <li *ngFor="let insight of suggestion.industryInsights" class="flex items-start">
+                  <svg class="w-4 h-4 mr-2 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-sm text-gray-700">{{ insight }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Suggested teams and timeline -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Suggested teams -->
+            <div *ngIf="suggestion.suggestedTeams && suggestion.suggestedTeams.length > 0">
+              <h5 class="text-sm font-semibold text-gray-900 mb-2">Recommended Teams</h5>
+              <div class="flex flex-wrap gap-2">
+                <div 
+                  *ngFor="let teamId of suggestion.suggestedTeams"
+                  class="flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full border border-blue-200">
+                  <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span class="text-xs font-medium">{{ getTeamName(teamId) }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Suggested dates -->
+            <div *ngIf="suggestion.suggestedStartDate && suggestion.suggestedEndDate">
+              <h5 class="text-sm font-semibold text-gray-900 mb-2">Recommended Timeline</h5>
+              <div class="flex items-center p-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex-1 text-center border-r border-gray-300 pr-2">
+                  <p class="text-xs text-gray-500">Start</p>
+                  <p class="text-sm font-medium text-gray-900">{{ suggestion.suggestedStartDate | date:'mediumDate' }}</p>
+                </div>
+                <div class="flex-1 text-center pl-2">
+                  <p class="text-xs text-gray-500">End</p>
+                  <p class="text-sm font-medium text-gray-900">{{ suggestion.suggestedEndDate | date:'mediumDate' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Alignment Tips -->
+          <div class="mt-4" *ngIf="suggestion.alignmentTips && suggestion.alignmentTips.length > 0">
+            <h5 class="text-sm font-semibold text-gray-900 mb-2">Strategic Alignment Tips</h5>
+            <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <ul class="space-y-1">
+                <li *ngFor="let tip of suggestion.alignmentTips" class="flex items-start">
+                  <svg class="w-4 h-4 mr-1.5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                  </svg>
+                  <span class="text-xs text-yellow-800">{{ tip }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

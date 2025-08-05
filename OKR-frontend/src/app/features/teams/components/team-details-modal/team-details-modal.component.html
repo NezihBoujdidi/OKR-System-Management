@@ -1,0 +1,549 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg w-[720px] max-h-[85vh] overflow-hidden flex flex-col">
+    <!-- Modal Header -->
+    <div class="px-5 py-3 border-b flex justify-between items-center bg-primary">
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h2 class="text-lg font-semibold text-white">Team Details</h2>
+      </div>
+      <button (click)="close.emit()" class="text-white hover:text-accent transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-5 overflow-y-auto modal-content">
+      <!-- Team Details Header -->
+      <div class="flex items-center space-x-3 mb-4 text-primary">
+        <h3 class="text-lg font-semibold">{{ team?.name }} Team Details</h3>
+      </div>
+
+      <!-- Team Information Section -->
+      <div class="bg-primary/5 rounded-lg p-4 mb-6">
+        <div class="flex items-center gap-4">
+          <div class="flex-shrink-0 w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white">
+            <span class="text-lg font-semibold">{{ team?.name?.substring(0, 1) || 'T' }}</span>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-base font-semibold">{{ team?.name }}</h4>
+            <p class="text-gray-600 text-sm">{{ team?.description || 'No description available' }}</p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Team Info & Manager in same row -->
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <!-- Team Info -->
+        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <h4 class="text-sm font-medium text-primary mb-2 border-b pb-1 border-gray-200">Team Info</h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <div>
+                <span class="text-primary font-medium">Created</span>
+                <span class="text-gray-600 ml-2">{{ team?.createdDate | date:'MMM d, y' }}</span>
+              </div>
+            </div>
+            <div *ngIf="team?.modifiedDate" class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <span class="text-primary font-medium">Modified</span>
+                <span class="text-gray-600 ml-2">{{ team?.modifiedDate | date:'MMM d, y' }}</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <div>
+                <span class="text-primary font-medium">Members</span>
+                <span class="text-gray-600 ml-2">{{ teamMembers.length }} collaborator{{ teamMembers.length !== 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Manager -->
+        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <h4 class="text-sm font-medium text-primary mb-2 border-b pb-1 border-gray-200">Team Manager</h4>
+          <div *ngIf="teamManager" class="flex items-center space-x-3">
+            <div class="relative">
+              <img [src]="teamManager.profilePictureUrl? teamManager.profilePictureUrl : 'assets/placeholder-avatar.jpg'" 
+                [alt]="teamManager.firstName"
+                class="w-11 h-11 rounded-full border-2 border-accent object-cover">
+              <div class="absolute -bottom-1 -right-1 bg-primary text-white rounded-full p-0.5">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <div class="font-medium text-primary">{{ teamManager.firstName }} {{ teamManager.lastName }}</div>
+              <div class="text-xs text-gray-500 flex items-center">
+                <span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full">{{ teamManager.role }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!teamManager" class="text-gray-500 italic text-sm">
+            No manager assigned
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end items-center mb-3">
+        
+        <!-- Add Collaborators Button - Only visible for non-collaborators -->
+        <button *ngIf="canAddCollaborators"
+                (click)="openAddCollaboratorsModal()"
+                class="px-3 py-1.5 text-sm font-medium text-white bg-accent rounded-md hover:bg-accent/80 transition-colors flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          <span>Add Collaborators</span>
+        </button>
+      </div>
+      <!-- Team Members -->
+      <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-center mb-3 border-b pb-2 border-gray-200">
+          <h4 class="text-sm font-medium text-primary">Team Members</h4>
+          <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+            {{ teamMembers.length + 1 }} total
+          </span>
+        </div>
+        
+        <div class="space-y-2">
+          <div *ngFor="let member of teamMembers" 
+              class="flex items-center justify-between p-2 bg-white rounded-lg hover:bg-accent/5 transition-colors duration-200 border border-gray-100 group"
+              [class.border-red-200]="!member.isEnabled"
+              [class.bg-red-50]="!member.isEnabled">
+            <div class="flex items-center space-x-3">
+              <img [src]="member.profilePictureUrl? member.profilePictureUrl : 'assets/placeholder-avatar.jpg'" 
+                  [alt]="member.firstName"
+                  class="w-8 h-8 rounded-full border border-accent/30 object-cover"
+                  [class.opacity-50]="!member.isEnabled">
+              <div>
+                <div class="font-medium text-sm" [class.text-primary]="member.isEnabled" [class.text-red-600]="!member.isEnabled">
+                  {{ member.firstName }} {{ member.lastName }}
+                  <span *ngIf="!member.isEnabled" class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full ml-2">
+                    Disabled
+                  </span>
+                </div>
+                <div class="text-xs" [class.text-gray-500]="member.isEnabled" [class.text-red-400]="!member.isEnabled">{{ member.email }}</div>
+              </div>
+            </div>
+            
+            <!-- Role Badge -->
+            <div class="flex items-center space-x-3">
+              <span class="text-xs px-2 py-0.5 rounded-full"
+                    [class.bg-gray-100]="member.isEnabled" 
+                    [class.text-gray-700]="member.isEnabled"
+                    [class.bg-red-100]="!member.isEnabled" 
+                    [class.text-red-600]="!member.isEnabled">
+                {{ member.role }}
+              </span>
+              
+              <!-- Member Actions -->
+              <div class="relative member-actions" *ngIf="!isCollaborator">
+                <button (click)="toggleMemberMenu(member, $event)" 
+                        class="p-1 rounded-lg hover:bg-accent/10 text-gray-400 hover:text-primary transition-colors">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                  </svg>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div *ngIf="selectedMemberForMenu === member" 
+                    [class.bottom-full]="shouldShowDropupMenu(member)"
+                    [class.top-full]="!shouldShowDropupMenu(member)"
+                    class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 transform transition-all duration-200 ease-out">
+                  
+                  <!-- Edit Member Button -->
+                  <button (click)="openMemberDrawer(member); $event.stopPropagation()"
+                          class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                      <span>Edit Member</span>
+                  </button>
+
+                  <!-- Delete Option (only for Organization Admin) -->
+                  <ng-container *ngIf="canManageEmployees">
+                      <div class="h-[1px] bg-gray-100 my-1"></div>
+                      <button (click)="confirmDeleteMember(member); $event.stopPropagation()"
+                              [class.text-red-600]="member.isEnabled"
+                              [class.hover:bg-red-50]="member.isEnabled"
+                              [class.text-green-600]="!member.isEnabled"
+                              [class.hover:bg-green-50]="!member.isEnabled"
+                              class="flex items-center w-full px-4 py-2 text-sm transition-colors group">
+                          <svg class="w-4 h-4 mr-3" 
+                               [class.text-red-400]="member.isEnabled"
+                               [class.group-hover:text-red-600]="member.isEnabled"
+                               [class.text-green-400]="!member.isEnabled"
+                               [class.group-hover:text-green-600]="!member.isEnabled"
+                               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path *ngIf="member.isEnabled" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                              <path *ngIf="!member.isEnabled" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span class="whitespace-nowrap">{{ member.isEnabled ? 'Disable user' : 'Enable user' }}</span>
+                      </button>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state when no members -->
+          <div *ngIf="teamMembers.length === 0" class="text-center py-6 text-gray-500">
+            <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <p class="text-sm">No team members found</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Member Update Drawer -->
+<div *ngIf="showMemberDrawer" 
+     class="fixed inset-y-0 right-0 w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 overflow-y-auto"
+     [class.translate-x-0]="showMemberDrawer"
+     [class.translate-x-full]="!showMemberDrawer">
+  <div class="p-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b">
+      <h3 class="text-base font-semibold text-primary">Edit Member</h3>
+      <button (click)="showMemberDrawer = false" 
+              class="p-1 rounded-full hover:bg-accent/10 text-gray-400 hover:text-primary">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Member Info -->
+    <div class="mb-5 p-3 bg-gray-50 rounded-lg flex items-center space-x-3">
+      <img [src]="selectedMember?.profilePictureUrl? selectedMember?.profilePictureUrl : 'assets/placeholder-avatar.jpg'" 
+           [alt]="selectedMember?.firstName"
+           class="w-14 h-14 rounded-full border-2 border-accent object-cover">
+      <div>
+        <div class="font-medium text-primary">
+          {{ selectedMember?.firstName }} {{ selectedMember?.lastName }}
+        </div>
+        <div class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">
+          {{ selectedMember?.role }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Member Details -->
+    <div class="space-y-3 mb-6">
+      <div class="p-3 bg-gray-50 rounded-lg">
+        <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+        <div class="text-sm text-gray-900">{{ selectedMember?.email }}</div>
+      </div>
+      <div class="p-3 bg-gray-50 rounded-lg">
+        <label class="block text-xs font-medium text-gray-500 mb-1">Position</label>
+        <div class="text-sm text-gray-900">{{ selectedMember?.position || 'Not specified' }}</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col space-y-2">
+      <button (click)="confirmMoveToTeam(selectedMember!)"
+              class="w-full px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors">
+        Move to Team
+      </button>
+      <button (click)="confirmRemoveFromTeam(selectedMember!)"
+              class="w-full px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+        Remove from Team
+      </button>
+      <button (click)="showMemberDrawer = false"
+              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete from Organization Confirmation Dialog -->
+<div *ngIf="showDeleteConfirm" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-5 w-[350px] shadow-lg">
+    <div class="flex items-center space-x-3 mb-3" 
+         [class.text-red-600]="memberToDelete?.isEnabled"
+         [class.text-green-600]="!memberToDelete?.isEnabled">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path *ngIf="memberToDelete?.isEnabled" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+        <path *ngIf="!memberToDelete?.isEnabled" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3 class="text-base font-semibold">{{ memberToDelete?.isEnabled ? 'Disable User Account' : 'Enable User Account' }}</h3>
+    </div>
+    <p class="text-gray-600 mb-5 text-sm">
+      <ng-container *ngIf="memberToDelete?.isEnabled">
+        Are you sure you want to disable {{ memberToDelete?.firstName }} {{ memberToDelete?.lastName }}'s account? This will prevent them from logging in.
+      </ng-container>
+      <ng-container *ngIf="!memberToDelete?.isEnabled">
+        Are you sure you want to enable {{ memberToDelete?.firstName }} {{ memberToDelete?.lastName }}'s account? This will allow them to login again.
+      </ng-container>
+    </p>
+    <div class="flex justify-end space-x-3">
+      <button (click)="showDeleteConfirm = false"
+              class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="deleteMember()"
+              [class.bg-red-600]="memberToDelete?.isEnabled"
+              [class.hover:bg-red-700]="memberToDelete?.isEnabled"
+              [class.bg-green-600]="!memberToDelete?.isEnabled"
+              [class.hover:bg-green-700]="!memberToDelete?.isEnabled"
+              class="px-3 py-1.5 text-sm font-medium text-white rounded-lg">
+        {{ memberToDelete?.isEnabled ? 'Disable' : 'Enable' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Remove from Team Confirmation Dialog -->
+<div *ngIf="showRemoveConfirm" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-5 w-[350px] shadow-lg">
+    <div class="flex items-center space-x-3 mb-3 text-amber-600">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+      </svg>
+      <h3 class="text-base font-semibold">Remove from Team</h3>
+    </div>
+    <p class="text-gray-600 mb-5 text-sm">
+      Are you sure you want to remove {{ selectedMember?.firstName }} {{ selectedMember?.lastName }} from this team?
+    </p>
+    <div class="flex justify-end space-x-3">
+      <button (click)="showRemoveConfirm = false"
+              class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="removeFromTeam(selectedMember!)"
+              class="px-3 py-1.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700">
+        Remove
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Move to Team Confirmation Dialog -->
+<div *ngIf="showMoveToTeamConfirm" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-5 w-[450px] shadow-lg">
+    <div class="flex items-center space-x-3 mb-3" [class.text-accent]="!hasOngoingTasks" [class.text-amber-600]="hasOngoingTasks">
+      <svg *ngIf="!hasOngoingTasks" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      <svg *ngIf="hasOngoingTasks" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <h3 class="text-base font-semibold">{{ hasOngoingTasks ? 'Cannot Move User' : 'Move to Another Team' }}</h3>
+    </div>
+    
+    <!-- Error Message for Ongoing Tasks -->
+    <div *ngIf="hasOngoingTasks" class="mb-4 bg-amber-50 border border-amber-300 p-3 rounded-md">
+      <p class="text-amber-700 text-sm">
+        {{ moveErrorMessage }}
+      </p>
+      <div class="mt-3">
+        <button (click)="navigateToReassignTasks()" 
+                class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Reassign Tasks
+        </button>
+      </div>
+    </div>
+    
+    <!-- Regular Move Content -->
+    <div *ngIf="!hasOngoingTasks && selectedMember" class="mb-4">
+      <p class="text-gray-600 mb-2 text-sm">
+        Select a team to move <span class="font-medium">{{ selectedMember.firstName }} {{ selectedMember.lastName }}</span> to:
+      </p>
+      
+      <!-- Team Selection Dropdown -->
+      <div class="relative">
+        <select [(ngModel)]="selectedTargetTeam" 
+                class="w-full p-2 border border-gray-300 rounded-lg bg-white focus:border-accent focus:ring-1 focus:ring-accent">
+          <option [ngValue]="null" disabled selected>-- Select a team --</option>
+          <option *ngFor="let team of availableTeams" [ngValue]="team">{{ team.name }}</option>
+        </select>
+        
+        <!-- Empty state if no teams available -->
+        <div *ngIf="availableTeams.length === 0" class="text-sm text-gray-500 italic mt-2">
+          No other teams available for this member.
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-end space-x-3">
+      <button (click)="showMoveToTeamConfirm = false"
+              class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Cancel
+      </button>
+      <button *ngIf="!hasOngoingTasks"
+              (click)="moveToTeam()"
+              [disabled]="!selectedTargetTeam || isMoving"
+              class="px-3 py-1.5 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-1">
+        <span *ngIf="isMoving" class="inline-block animate-spin mr-1">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </span>
+        <span>{{ isMoving ? 'Moving...' : 'Move Member' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Collaborators Modal -->
+<div *ngIf="showAddCollaboratorsModal" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-5 w-[600px] max-h-[80vh] flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-primary">Add Collaborators to Team</h3>
+      <button (click)="closeAddCollaboratorsModal()" 
+              class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="mb-4">
+      <div class="relative">
+        <input type="text" 
+               [(ngModel)]="searchQuery"
+               (input)="filterCollaborators()"
+               placeholder="Search collaborators by name, email or position"
+               class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Selection Actions -->
+    <div class="flex justify-between mb-3">
+      <span class="text-sm text-gray-600">
+        {{ selectedCollaborators.length }} of {{ filteredCollaborators.length }} selected
+      </span>
+      <div class="flex space-x-3">
+        <button (click)="selectAllCollaborators()"
+                [disabled]="filteredCollaborators.length === 0"
+                class="text-sm text-primary hover:text-primary-dark disabled:text-gray-400">
+          Select All
+        </button>
+        <button (click)="clearAllSelections()"
+                [disabled]="selectedCollaborators.length === 0"
+                class="text-sm text-gray-600 hover:text-gray-800 disabled:text-gray-400">
+          Clear All
+        </button>
+      </div>
+    </div>
+    
+    <!-- Collaborators List -->
+    <div class="flex-1 overflow-y-auto min-h-[300px] border border-gray-200 rounded-lg">
+      <!-- Empty State -->
+      <div *ngIf="filteredCollaborators.length === 0" class="flex flex-col items-center justify-center h-full py-10">
+        <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <p class="mt-2 text-sm text-gray-600">
+          {{ organizationCollaborators.length === 0 ? 'No available collaborators found' : 'No collaborators match your search' }}
+        </p>
+      </div>
+      
+      <!-- Collaborators -->
+      <div *ngIf="filteredCollaborators.length > 0" class="divide-y divide-gray-100">
+        <div *ngFor="let collaborator of filteredCollaborators"
+             (click)="toggleCollaboratorSelection(collaborator)" 
+             class="flex items-center p-3 hover:bg-gray-50 cursor-pointer"
+             [ngClass]="{
+              'hover:bg-gray-50': true,
+              'bg-primary/5': isCollaboratorSelected(collaborator)
+            }">
+            
+          <div class="mr-3">
+            <div class="w-5 h-5 border rounded flex items-center justify-center"
+                 [class.border-primary]="isCollaboratorSelected(collaborator)"
+                 [class.bg-primary]="isCollaboratorSelected(collaborator)">
+              <svg *ngIf="isCollaboratorSelected(collaborator)" class="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex items-center flex-1">
+            <div *ngIf="collaborator.profilePictureUrl"
+                class="w-10 h-10 rounded-full bg-cover bg-center mr-3" 
+                [style.background-image]="'url(' + collaborator.profilePictureUrl + ')'">
+            </div>
+            <div *ngIf="!collaborator.profilePictureUrl"
+                class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+              <span class="text-gray-600 font-semibold">
+                {{ (collaborator.firstName?.charAt(0) || '') + (collaborator.lastName?.charAt(0) || '') }}
+              </span>
+            </div>
+            <div>
+              <h5 class="font-medium">{{ collaborator.firstName }} {{ collaborator.lastName }}</h5>
+              <div class="text-sm text-gray-600 flex items-center space-x-2">
+                <span>{{ collaborator.email }}</span>
+                <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                <span>{{ collaborator.position || 'No position' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="mt-4 flex justify-end space-x-3">
+      <button (click)="closeAddCollaboratorsModal()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="addSelectedCollaboratorsToTeam()"
+              [disabled]="selectedCollaborators.length === 0 || isAddingCollaborators"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-1">
+        <span *ngIf="isAddingCollaborators" class="inline-block animate-spin mr-1">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </span>
+        <span>{{ isAddingCollaborators ? 'Adding...' : 'Add Selected Collaborators' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,349 @@
+<!-- PDF Export Modal with Blur Effect Background -->
+<div *ngIf="isOpen" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop with blur -->
+  <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity" (click)="onClose()"></div>
+
+  <!-- Modal Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <!-- Modal Content -->
+    <div class="relative bg-white w-[600px] rounded-xl shadow-xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto"
+         [class.opacity-0]="!isOpen"
+         [class.translate-y-4]="!isOpen"
+         [class.opacity-100]="isOpen"
+         [class.translate-y-0]="isOpen"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Modal Header with Brand Colors -->
+      <div class="flex items-center justify-between p-6 pb-4 border-b border-gray-100">
+        <div class="flex items-center">
+          <div class="w-1 h-8 bg-primary rounded mr-3"></div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Export OKR Report</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Choose how you want to export your OKR session
+            </p>
+          </div>
+        </div>
+        <button (click)="onClose()" 
+                class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full p-1 transition-all">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Content Based on Step -->
+      <div class="p-6">
+        <!-- Step 1: Select Export Type -->
+        <div *ngIf="exportStep === ExportStep.SELECT_TYPE" class="space-y-6">
+          <div class="text-center mb-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">How would you like to export your OKR session?</h3>
+            <p class="text-sm text-gray-500">Choose the type of report that best fits your needs</p>
+          </div>
+          
+          <!-- Error message for classic export failures -->
+          <div *ngIf="generationError" class="text-red-600 text-sm p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span class="font-medium">Export Error</span>
+            </div>
+            <p class="mt-1">{{ generationError }}</p>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Classic Export Option -->
+            <div *ngIf="!isClassicExporting" 
+                 (click)="selectClassicExport()" 
+                 class="flex flex-col items-center p-6 border border-gray-200 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h4 class="text-md font-medium text-gray-900 mb-2">Classic Report</h4>
+              <p class="text-sm text-gray-500 text-center">Standard OKR report with objective and key result details</p>
+            </div>
+            
+            <!-- Classic Export Animation State -->
+            <div *ngIf="isClassicExporting" 
+                 class="flex flex-col items-center p-6 border border-primary rounded-lg bg-primary/5 transition-all">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 relative">
+                <!-- Preparing Animation -->
+                <svg *ngIf="downloadAnimation === 'preparing'" class="w-8 h-8 text-primary animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                
+                <!-- Downloading Animation -->
+                <svg *ngIf="downloadAnimation === 'downloading'" class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                
+                <!-- Complete Animation -->
+                <svg *ngIf="downloadAnimation === 'complete'" class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7" />
+                </svg>
+                
+                <!-- Animation loader ring -->
+                <div *ngIf="downloadAnimation === 'downloading'" class="absolute inset-0 border-2 border-t-primary border-primary/30 rounded-full animate-spin"></div>
+              </div>
+              <h4 class="text-md font-medium text-gray-900 mb-2">
+                {{ downloadAnimation === 'preparing' ? 'Preparing Report...' : 
+                   downloadAnimation === 'downloading' ? 'Generating PDF...' : 
+                   'Download Complete!' }}
+              </h4>
+              <p class="text-sm text-primary text-center">
+                {{ downloadAnimation === 'preparing' ? 'Building your OKR report...' : 
+                   downloadAnimation === 'downloading' ? 'Almost ready...' : 
+                   'Your file will download shortly' }}
+              </p>
+            </div>
+            
+            <!-- AI Export Option -->
+            <div (click)="selectAiExport()"
+                 class="flex flex-col items-center p-6 border border-gray-200 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
+              <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h4 class="text-md font-medium text-gray-900 mb-2">AI-Enhanced Report</h4>
+              <p class="text-sm text-gray-500 text-center">Customized report with AI-generated insights and analysis</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 2: AI Prompt Input -->
+        <div *ngIf="exportStep === ExportStep.AI_PROMPT" class="space-y-6">
+          <div class="text-center mb-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">What would you like to focus on in your report?</h3>
+            <p class="text-sm text-gray-500">Tell our AI what aspects of your OKRs you want to highlight</p>
+          </div>
+          
+          <form [formGroup]="aiPromptForm" (ngSubmit)="generateAiReport()" class="space-y-6">
+            <div class="space-y-2">
+              <label for="prompt" class="block text-sm font-medium text-gray-700">
+                Your instructions for the AI
+              </label>
+              <textarea 
+                #aiPromptInput
+                id="prompt" 
+                formControlName="prompt"
+                rows="4"
+                class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none"
+                placeholder="e.g., Focus on our team's progress and challenges this quarter..."></textarea>
+            </div>
+            
+            <!-- AI Suggestions -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">
+                Quick suggestions
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  *ngFor="let suggestion of aiSuggestions" 
+                  type="button"
+                  (click)="useAiSuggestion(suggestion)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-full transition-all border border-gray-200 hover:border-primary hover:bg-primary/10 text-gray-700">
+                  {{ suggestion }}
+                </button>
+              </div>
+            </div>
+            
+            <!-- AI Generation Animation -->
+            <div *ngIf="isGenerating" class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div class="space-y-4">
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full transition-all duration-300"
+                       [style.width.%]="aiGenerationProgress"></div>
+                </div>
+                
+                <!-- Stage Indicator -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <!-- Analyzing Icon -->
+                    <div class="relative flex items-center justify-center w-8 h-8 mr-2">
+                      <svg class="w-6 h-6 text-primary" 
+                           [class.text-primary]="aiGenerationStage === 'analyzing'"
+                           [class.text-gray-400]="aiGenerationStage !== 'analyzing'"
+                           [class.animate-pulse]="aiGenerationStage === 'analyzing'"
+                           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    
+                    <!-- Stage Text -->
+                    <span class="text-sm font-medium" 
+                          [class.text-primary]="aiGenerationStage === 'analyzing'" 
+                          [class.text-gray-500]="aiGenerationStage !== 'analyzing'">
+                      Analyzing OKR data
+                    </span>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <!-- Generating Icon -->
+                    <div class="relative flex items-center justify-center w-8 h-8 mr-2">
+                      <svg class="w-6 h-6" 
+                           [class.text-primary]="aiGenerationStage === 'generating'"
+                           [class.text-gray-400]="aiGenerationStage !== 'generating'"
+                           [class.animate-pulse]="aiGenerationStage === 'generating'"
+                           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    
+                    <!-- Stage Text -->
+                    <span class="text-sm font-medium" 
+                          [class.text-primary]="aiGenerationStage === 'generating'" 
+                          [class.text-gray-500]="aiGenerationStage !== 'generating'">
+                      Generating insights
+                    </span>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <!-- Finalizing Icon -->
+                    <div class="relative flex items-center justify-center w-8 h-8 mr-2">
+                      <svg class="w-6 h-6" 
+                           [class.text-primary]="aiGenerationStage === 'finalizing'"
+                           [class.text-gray-400]="aiGenerationStage !== 'finalizing'"
+                           [class.animate-pulse]="aiGenerationStage === 'finalizing'"
+                           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    
+                    <!-- Stage Text -->
+                    <span class="text-sm font-medium" 
+                          [class.text-primary]="aiGenerationStage === 'finalizing'" 
+                          [class.text-gray-500]="aiGenerationStage !== 'finalizing'">
+                      Finalizing report
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Error message -->
+            <div *ngIf="generationError" class="text-red-500 text-sm p-3 bg-red-50 rounded-lg">
+              {{ generationError }}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3 pt-4">
+              <button 
+                type="button"
+                (click)="exportStep = ExportStep.SELECT_TYPE"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                Back
+              </button>
+              <button 
+                type="submit"
+                [disabled]="aiPromptForm.invalid || isGenerating"
+                class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <span *ngIf="isGenerating" class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Working on it...
+                </span>
+                <span *ngIf="!isGenerating">Generate Report</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Step 3: PDF Preview -->
+        <div *ngIf="exportStep === ExportStep.PDF_PREVIEW" class="space-y-6">
+          <div class="text-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Your AI-Enhanced Report</h3>
+            <p class="text-sm text-gray-500">Preview your report before downloading</p>
+          </div>
+          
+          <!-- Report Success Message -->
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span class="text-green-800 font-medium">AI report generated successfully!</span>
+            </div>
+            <p class="text-green-700 text-sm mt-1">Your customized OKR insights are ready for preview and download.</p>
+          </div>
+          
+          <!-- PDF Preview -->
+          <div class="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+            <div class="p-3 bg-gray-100 border-b border-gray-200 flex items-center justify-between">
+              <h4 class="font-semibold text-gray-900 text-sm">📊 AI-Enhanced OKR Report Preview</h4>
+              <span class="text-xs text-gray-500">PDF Document</span>
+            </div>
+            
+            <!-- PDF Viewer -->
+            <div class="h-[500px] relative">
+              <iframe 
+                *ngIf="pdfPreviewUrl"
+                [src]="pdfPreviewUrl" 
+                class="w-full h-full border-0"
+                frameborder="0">
+              </iframe>
+              
+              <!-- Fallback content if PDF preview fails -->
+              <div *ngIf="!pdfPreviewUrl" class="flex items-center justify-center h-full bg-gray-50">
+                <div class="text-center p-8">
+                  <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h4 class="text-lg font-medium text-gray-900 mb-2">Report Ready</h4>
+                  <p class="text-gray-500 mb-4">Your AI-enhanced report has been generated successfully.</p>
+                  <div class="space-y-2 text-sm text-gray-700 text-left max-w-md">
+                    <p><strong>Session:</strong> {{ session.title }}</p>
+                    <p><strong>Period:</strong> {{ session.startedDate | date:'shortDate' }} - {{ session.endDate | date:'shortDate' }}</p>
+                    <p><strong>Status:</strong> {{ session.status }}</p>
+                    <p><strong>Total Objectives:</strong> {{ objectives.length }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Download Progress Animation -->
+          <div *ngIf="downloadAnimation" class="text-center py-4">
+            <div *ngIf="downloadAnimation === 'download-success'" class="flex items-center justify-center text-green-600">
+              <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span class="font-medium">Download started successfully!</span>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex justify-end space-x-3 pt-4">
+            <button 
+              type="button"
+              (click)="retryWithNewPrompt()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+              Try Different Prompt
+            </button>
+            <button 
+              type="button"
+              (click)="downloadPdf()"
+              [disabled]="!pdfBlob"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-2 transition-all duration-300 group-hover:translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                Download Report
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

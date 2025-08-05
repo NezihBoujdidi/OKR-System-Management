@@ -1,0 +1,323 @@
+<div class="fixed left-[64px] top-0 h-screen w-64 bg-white border-r border-primary/10">
+    <!-- Header -->
+    <div class="p-4 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <span class="font-medium">{{ getTitle() }}</span>
+        </div>
+    </div>
+
+    <!-- Navigation Items -->
+    <nav class="px-2 space-y-2 h-full">
+        <!-- Section Title -->
+        <div class="px-3 py-2">
+            <h2 class="text-lg font-medium text-gray-900">{{ getTitle() }}</h2>
+        </div>
+
+        <!-- Items List -->
+        <div class="space-y-1">
+            <ng-container *ngFor="let item of sidebarItems[currentSection]?.items">
+                <!-- All OKR Sessions for all users -->
+                <div *ngIf="item.id === 'all-sessions'" class="mt-2">
+                    <!-- Header for All OKR Sessions -->
+                <a [routerLink]="item.route" 
+                        [ngClass]="{
+                            'text-primary bg-accent-light border-l-2 border-accent font-semibold': (isRouteActive(item.route || '') && !activeSessionId && authStateService.getUserRole() !== roleType.OrganizationAdmin) || 
+                                     (authStateService.getUserRole() === roleType.OrganizationAdmin && isRouteActive('/okrs')),
+                            'text-gray-600': ((!isRouteActive(item.route || '') || activeSessionId) && authStateService.getUserRole() !== roleType.OrganizationAdmin) || 
+                                     (authStateService.getUserRole() === roleType.OrganizationAdmin && !isRouteActive('/okrs'))
+                        }"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200">
+                        <svg class="w-5 h-5 mr-3" [ngClass]="{'text-primary': (isRouteActive(item.route || '') && !activeSessionId && authStateService.getUserRole() !== roleType.OrganizationAdmin) || 
+                                      (authStateService.getUserRole() === roleType.OrganizationAdmin && isRouteActive('/okrs')), 
+                                'text-gray-400': ((!isRouteActive(item.route || '') || activeSessionId) && authStateService.getUserRole() !== roleType.OrganizationAdmin) || 
+                                      (authStateService.getUserRole() === roleType.OrganizationAdmin && !isRouteActive('/okrs'))}"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
+                        </svg>
+                        {{ item.title }}
+                    </a>
+                    
+                    <!-- Sessions List - Display for organization admins and others -->
+                    <div *ngIf="item.sessions?.length && authStateService.getUserRole() !== roleType.TeamManager && authStateService.getUserRole() !== roleType.Collaborator; else noSessions" class="mt-2 space-y-1 ml-3">
+                        <ng-container *ngFor="let session of item.sessions">
+                            <a [routerLink]="authStateService.getUserRole() === roleType.OrganizationAdmin && activeOrganizationId ? 
+                                      '/organizations/' + activeOrganizationId + '/okrs/' + session.id : 
+                                      '/okrs/' + session.id"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                               [ngClass]="{
+                                 'text-primary bg-accent-light border-l-2 border-accent font-semibold': activeSessionId === session.id,
+                                 'text-gray-600 hover:bg-gray-50 hover:text-gray-900': activeSessionId !== session.id
+                               }">
+                                <span class="w-2 h-2 rounded-full mr-3 transition-transform" 
+                                      [style.backgroundColor]="session.color || '#4299E1'"
+                                      [class.scale-125]="activeSessionId === session.id"></span>
+                                <span class="flex-1 truncate">{{ session.title }}</span>
+                            </a>
+                        </ng-container>
+                    </div>
+                    
+                    <!-- Empty state when no sessions -->
+                    <ng-template #noSessions>
+                        <div *ngIf="authStateService.getUserRole() !== roleType.TeamManager && authStateService.getUserRole() !== roleType.Collaborator" class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No sessions available</div>
+                    </ng-template>
+                </div>
+                
+                <!-- Navigation Item (no organizations or teams) -->
+                <a *ngIf="!(item.id === 'all-sessions') && !item.organizations && !item.teams && item.route"
+                   [routerLink]="item.route" 
+                   [ngClass]="{
+                     'text-primary bg-accent-light border-l-2 border-accent font-semibold': isRouteActive(item.route || '') && !activeSessionId,
+                     'text-gray-600': !isRouteActive(item.route || '') || activeSessionId
+                   }"
+                   class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200">
+                    <svg class="w-5 h-5 mr-3" [ngClass]="{'text-primary': isRouteActive(item.route || '') && !activeSessionId, 'text-gray-400': !isRouteActive(item.route || '') || activeSessionId}"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
+                    </svg>
+                    {{ item.title }}
+                </a>
+
+                <!-- Teams List for Team Managers or Collaborators -->
+                <ng-container *ngIf="item.id === 'my-teams' && (isTeamManager || isCollaborator)">
+                    <div class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" 
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
+                        </svg>
+                        {{ item.title }}
+                    </div>
+                    
+                    <!-- Teams -->
+                    <div *ngIf="item.teams?.length; else noTeams" class="mt-2 space-y-1 ml-3">
+                        <ng-container *ngFor="let team of item.teams">
+                            <button (click)="onTeamClick(team.id)"
+                                    class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    [ngClass]="{
+                                      'text-primary bg-accent-light border-l-2 border-accent font-semibold': isTeamActive(team.id),
+                                      'text-gray-600 hover:bg-gray-50 hover:text-gray-900': !isTeamActive(team.id)
+                                    }">
+                                <div class="flex items-center min-w-0">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" 
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                    <span class="flex-1 truncate min-w-0">{{ team.name }}</span>
+                                </div>
+                            </button>
+
+                            <!-- Team's Sessions List -->
+                            <div *ngIf="isTeamActive(team.id)" class="pl-4 mt-1 mb-2">
+                                <!-- Team's Sessions List -->
+                                <div *ngIf="team.sessions?.length; else noTeamSessions" class="ml-6 space-y-1">
+                                    <ng-container *ngFor="let session of team.sessions">
+                                        <button (click)="navigateToTeamSession(session.id)"
+                                                class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                                [ngClass]="{
+                                                  'text-primary bg-accent-light border-l-2 border-accent font-semibold': activeSessionId === session.id,
+                                                  'text-gray-600 hover:bg-gray-50 hover:text-gray-900': activeSessionId !== session.id
+                                                }">
+                                            <div class="flex items-center min-w-0">
+                                                <span class="w-2 h-2 rounded-full mr-2 transition-transform" 
+                                                    [style.backgroundColor]="session.color"
+                                                    [class.scale-125]="activeSessionId === session.id"></span>
+                                                <span class="flex-1 truncate min-w-0">{{ session.title }}</span>
+                                            </div>
+                                        </button>
+                                    </ng-container>
+                                </div>
+                                
+                                <!-- Empty state when no sessions -->
+                                <ng-template #noTeamSessions>
+                                    <div class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No sessions available</div>
+                                </ng-template>
+                            </div>
+                        </ng-container>
+                    </div>
+                    
+                    <!-- Empty state when no teams -->
+                    <ng-template #noTeams>
+                        <div class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No teams available</div>
+                    </ng-template>
+                </ng-container>
+
+                <!-- Organizations List for Super Admin -->
+                <ng-container *ngIf="item.id === 'all-organizations' && isSuperAdmin">
+                    <div class="flex items-center px-3 py-2 text-sm font-medium rounded-lg"
+                         [ngClass]="{
+                             'text-primary bg-accent-light border-l-2 border-accent': router.url === '/okrs' && !activeOrganizationId && !activeSessionId,
+                             'text-gray-600': router.url !== '/okrs' || activeOrganizationId || activeSessionId
+                         }"
+                         (click)="navigateToRoute('/okrs')">
+                        <svg class="w-5 h-5 mr-3" 
+                            [ngClass]="{
+                                'text-primary': router.url === '/okrs' && !activeOrganizationId && !activeSessionId,
+                                'text-gray-400': router.url !== '/okrs' || activeOrganizationId || activeSessionId
+                            }"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
+                        </svg>
+                        {{ item.title }}
+                    </div>
+                    
+                    <!-- Organizations -->
+                    <div *ngIf="item.organizations?.length; else noOrgs" class="mt-2 space-y-1 ml-3">
+                        <ng-container *ngFor="let org of item.organizations">
+                            <button (click)="navigateToRoute('/organizations/' + org.id)"
+                                    class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    [ngClass]="{
+                                      'text-primary bg-accent-light border-l-2 border-accent font-semibold': isOrganizationActive(org.id),
+                                      'text-gray-600 hover:bg-gray-50 hover:text-gray-900': !isOrganizationActive(org.id)
+                                    }">
+                                <div class="flex items-center min-w-0">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" 
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    <span class="flex-1 truncate min-w-0">{{ org.name }}</span>
+                                </div>
+                            </button>
+
+                            <!-- All Sessions for this Organization -->
+                            <div *ngIf="isOrganizationActive(org.id)" class="pl-4 mt-1 mb-2">
+                                <button (click)="navigateToRoute('/organizations/' + org.id)"
+                                    class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg text-primary bg-accent-light border-l-2 border-accent">
+                                    <svg class="w-4 h-4 mr-2 text-primary" 
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                    All Sessions
+                                </button>
+                                
+                                <!-- Organization's Sessions List -->
+                                <div *ngIf="org.sessions?.length; else noSessions" class="ml-6 space-y-1">
+                                    <ng-container *ngFor="let session of org.sessions">
+                                        <button (click)="navigateToOrganizationSession(org.id, session.id)"
+                                class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                                [ngClass]="{
+                                                  'text-primary bg-accent-light border-l-2 border-accent font-semibold': activeSessionId === session.id,
+                                                  'text-gray-600 hover:bg-gray-50 hover:text-gray-900': activeSessionId !== session.id
+                                                }">
+                            <div class="flex items-center min-w-0">
+                                <span class="w-2 h-2 rounded-full mr-2 transition-transform" 
+                                      [style.backgroundColor]="session.color"
+                                      [class.scale-125]="activeSessionId === session.id"></span>
+                                <span class="flex-1 truncate min-w-0">{{ session.title }}</span>
+                            </div>
+                        </button>
+                    </ng-container>
+                </div>
+                                
+                                <!-- Empty state when no sessions -->
+                                <ng-template #noSessions>
+                                    <div class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No sessions available</div>
+                                </ng-template>
+                            </div>
+                        </ng-container>
+                    </div>
+                    
+                    <!-- Empty state when no organizations -->
+                    <ng-template #noOrgs>
+                        <div class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No organizations available</div>
+                    </ng-template>
+                </ng-container>
+
+                <!-- Organizations List for Super Admin in Employees section -->
+                <ng-container *ngIf="item.id === 'all-organizations-employees' && isSuperAdmin">
+                    <div class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" 
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"/>
+                        </svg>
+                        {{ item.title }}
+                    </div>
+                    
+                    <!-- Organizations -->
+                    <div *ngIf="item.organizations?.length; else noOrgsEmp" class="mt-2 space-y-1 ml-3">
+                        <ng-container *ngFor="let org of item.organizations">
+                            <button (click)="navigateToRoute('/organizations/' + org.id + '/employees')"
+                                    class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    [ngClass]="{
+                                      'text-primary bg-accent-light border-l-2 border-accent font-semibold': isOrganizationActive(org.id),
+                                      'text-gray-600 hover:bg-gray-50 hover:text-gray-900': !isOrganizationActive(org.id)
+                                    }">
+                                <div class="flex items-center min-w-0">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" 
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    <span class="flex-1 truncate min-w-0">{{ org.name }}</span>
+                                </div>
+                            </button>
+
+                            <!-- Show employee management options when organization is active -->
+                            <div *ngIf="isOrganizationActive(org.id)" class="pl-4 mt-1 mb-2">
+                                <!-- All Employees -->
+                                <button (click)="navigateToRoute('/organizations/' + org.id + '/employees')"
+                                        class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                        [ngClass]="{
+                                          'text-primary bg-accent-light border-l-2 border-accent font-semibold': isRouteActive('/organizations/' + org.id + '/employees'),
+                                          'text-gray-600': !isRouteActive('/organizations/' + org.id + '/employees')
+                                        }">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" 
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    All Employees
+                                </button>
+                                
+                                <!-- Teams -->
+                                <button (click)="navigateToRoute('/OrgTeams/' + org.id + '/teams')"
+                                        class="w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                        [ngClass]="{
+                                          'text-primary bg-accent-light border-l-2 border-accent font-semibold': isRouteActive('/OrgTeams/' + org.id + '/teams'),
+                                          'text-gray-600': !isRouteActive('/OrgTeams/' + org.id + '/teams')
+                                        }">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" 
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Teams
+                                </button>
+                            </div>
+                        </ng-container>
+                    </div>
+                    
+                    <!-- Empty state when no organizations -->
+                    <ng-template #noOrgsEmp>
+                        <div class="ml-6 px-3 py-2 text-sm text-gray-500 italic">No organizations available</div>
+                    </ng-template>
+                </ng-container>
+            </ng-container>
+        </div>
+    </nav>
+
+    <!-- Add a Meetings section -->
+    <div *ngIf="activeSection === 'meetings'" class="space-y-3 animate-fadeIn">
+      <h3 class="font-bold text-sm uppercase text-gray-500 mx-6 mt-8 mb-2">Meetings</h3>
+      <a routerLink="/meetings" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" class="flex items-center px-6 py-3 text-primary hover:bg-accent/5 transition-colors cursor-pointer">
+        <i class="fas fa-video text-accent mr-3 text-sm"></i>
+        <span>All Meetings</span>
+      </a>
+      <a routerLink="/meetings/scheduled" routerLinkActive="active-link" class="flex items-center px-6 py-3 text-primary hover:bg-accent/5 transition-colors cursor-pointer">
+        <i class="far fa-calendar-alt text-accent mr-3 text-sm"></i>
+        <span>Scheduled</span>
+      </a>
+      <a routerLink="/meetings/history" routerLinkActive="active-link" class="flex items-center px-6 py-3 text-primary hover:bg-accent/5 transition-colors cursor-pointer">
+        <i class="fas fa-history text-accent mr-3 text-sm"></i>
+        <span>Meeting History</span>
+      </a>
+    </div>
+</div>
+
+
+
+

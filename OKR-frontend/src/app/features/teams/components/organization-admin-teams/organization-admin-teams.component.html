@@ -1,0 +1,292 @@
+<div class="flex">
+    <app-navigation-sidebar activeRoute="employees"></app-navigation-sidebar>
+    <app-content-sidebar activeSection="employees"></app-content-sidebar>
+    
+    <!-- Main Content -->
+    <div class="ml-[312px] flex-1">
+        <div class="flex flex-col min-h-screen bg-gray-50">
+            <!-- Header -->
+            <div class="bg-white border-b">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <a routerLink="/dashboard" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-primary text-xl font-semibold">Organization</h1>
+                            <span class="text-gray-400">/</span>
+                            <h2 class="text-primary text-xl font-semibold">Teams</h2>
+                        </div>
+                    </div>
+                    
+                    <!-- Create Team Button - Only visible for org admin -->
+                    <button 
+                        (click)="openCreateTeamDrawer()"
+                        class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-accent hover:text-black">
+                        + Create Team
+                    </button>
+                </div>
+            </div>
+
+            <!-- Teams List Section -->
+            <div class="flex-1 min-h-0 overflow-y-scroller pr-2 pl-6 py-4">
+                <!-- Teams Grid -->
+                <div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <app-card *ngFor="let team of teams"
+                            [title]="team.name"
+                            [description]="team.description"
+                            [teamManagerId]="team.teamManagerId"
+                            [teamMembers]="team.teamMembers"
+                            [managerName]="team.managerName"
+                            [managerRole]="team.managerRole"
+                            [managerImage]="team.managerImage"
+                            [createdDate]="team.createdDate"
+                            [organizationId]="team.organizationId"
+                            [hasEditPermission]="true"
+                            (editTeam)="editTeam(team)"
+                            (deleteTeam)="confirmDeleteTeam(team)"
+                            (click)="selectTeam(team)">
+                        </app-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Details Modal -->
+<app-team-details-modal
+  *ngIf="showTeamDetailsModal"
+  [team]="selectedTeam"
+  [currentUser]="currentUser"
+  (close)="showTeamDetailsModal = false"
+  (teamsUpdated)="handleTeamsUpdated()">
+</app-team-details-modal>
+
+<!-- Create Team Drawer with Blur Effect -->
+<div class="fixed inset-0 z-[9999] overflow-y-auto"
+     [class.opacity-0]="!showCreateTeamDrawer"
+     [class.hidden]="!showCreateTeamDrawer"
+     [class.transition-opacity]="true"
+     [class.duration-300]="true">
+  <!-- Backdrop with blur -->
+  <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+       (click)="cancelEdit()"></div>
+  
+  <!-- Drawer Container -->
+  <div class="fixed inset-y-0 right-0 flex">
+    <!-- Drawer Content -->
+    <div class="relative bg-white w-[450px] shadow-2xl transform transition-transform duration-300 h-full overflow-y-auto"
+         [class.translate-x-0]="showCreateTeamDrawer"
+         [class.translate-x-full]="!showCreateTeamDrawer"
+         (click)="$event.stopPropagation()">
+      
+      <div class="p-8">
+        <!-- Header with Yellow Accent -->
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-yellow-300">
+          <div class="flex items-center">
+            <div class="w-1 h-8 bg-yellow-400 rounded mr-3"></div>
+            <h3 class="text-xl font-semibold text-gray-800">{{ isEditMode ? 'Edit Team' : 'Create New Team' }}</h3>
+          </div>
+          <button (click)="cancelEdit()" 
+                  class="p-2 rounded-full hover:bg-yellow-100 text-gray-600 hover:text-yellow-600 transition-colors duration-200">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Create Team Form -->
+        <form [formGroup]="createTeamForm" (ngSubmit)="createTeam()" class="space-y-8">
+          <!-- Team Name -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Team Name <span class="text-yellow-500">*</span></label>
+            <div class="relative">
+              <input type="text" 
+                   formControlName="name"
+                   placeholder="Enter team name"
+                   class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm transition-all duration-200">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            <div *ngIf="createTeamForm.get('name')?.touched && createTeamForm.get('name')?.invalid"
+                 class="text-sm text-red-600 mt-1 pl-2">
+              Team name is required (min 3 characters)
+            </div>
+          </div>
+
+          <!-- Team Description -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+            <div class="relative">
+              <textarea formControlName="description"
+                      rows="3"
+                      placeholder="Enter team description"
+                      class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm transition-all duration-200"></textarea>
+              <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Manager Selection -->
+          <div class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700">Team Manager <span class="text-yellow-500">*</span></label>
+            
+            <!-- Toggle Switch with Yellow Accents (only for create) -->
+            <div *ngIf="!isEditMode" class="bg-gray-100 w-full rounded-full p-1 flex mb-4 shadow-inner">
+              <button type="button"
+                      (click)="toggleInviteManagerForm(false)"
+                      [class]="!showInviteManagerForm ? 'bg-yellow-400 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-yellow-100'"
+                      class="flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ease-in-out">
+                Existing Manager
+              </button>
+              <button type="button"
+                      (click)="toggleInviteManagerForm(true)"
+                      [class]="showInviteManagerForm ? 'bg-yellow-400 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-yellow-100'"
+                      class="flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ease-in-out">
+                Invite New
+              </button>
+            </div>
+
+            <!-- Existing Managers Dropdown (always for edit, conditional for create) -->
+            <div *ngIf="isEditMode || !showInviteManagerForm" class="transition-all duration-200">
+                <div class="relative">
+                    <!-- Custom Select with Icons -->
+                    <div class="relative">
+                        <!-- Dropdown Trigger -->
+                        <div 
+                            (click)="toggleManagerDropdown()" 
+                            class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm text-gray-600 appearance-none transition-all duration-200 cursor-pointer flex justify-between items-center">
+                            <span *ngIf="!createTeamForm.get('teamManagerId')?.value">Select existing manager</span>
+                            <span *ngIf="createTeamForm.get('teamManagerId')?.value">
+                                {{ getSelectedManagerName() }}
+                            </span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        
+                        <!-- Dropdown Options -->
+                        <div *ngIf="showManagerDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div 
+                                *ngFor="let manager of availableManagers" 
+                                (click)="selectManager(manager.id)"
+                                class="px-4 py-2 hover:bg-yellow-50 cursor-pointer flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ manager.firstName }} {{ manager.lastName }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Hidden actual form control for validation -->
+                        <select formControlName="teamManagerId" class="hidden">
+                            <option value="" disabled>Select existing manager</option>
+                            <option *ngFor="let manager of availableManagers" [value]="manager.id">
+                                {{ manager.firstName }} {{ manager.lastName }}
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invite New Manager Form (only for create) -->
+            <div *ngIf="!isEditMode && showInviteManagerForm" class="transition-all duration-200">
+                <div class="relative">
+                    <input type="email" 
+                          formControlName="inviteManagerEmail"
+                          placeholder="Enter manager's email"
+                          class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm transition-all duration-200">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-6">
+            <button type="submit"
+                    [disabled]="!createTeamForm.valid || isInviting"
+                    class="w-full px-4 py-3 text-sm font-medium text-gray-900 bg-yellow-400 rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 hover:scale-[1.02] shadow-md">
+              <span *ngIf="!isInviting">
+                <ng-container *ngIf="isEditMode; else createNew">
+                  {{ showInviteManagerForm ? 'Send Invitation & Update Team' : 'Update Team' }}
+                </ng-container>
+                <ng-template #createNew>
+                  {{ showInviteManagerForm ? 'Create Team & Send Invitation' : 'Create Team' }}
+                </ng-template>
+              </span>
+              <span *ngIf="isInviting" class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isEditMode ? 'Updating Team...' : 'Sending Invitation...' }}
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal Backdrop -->
+<div *ngIf="showDeleteConfirm" 
+     class="fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50"
+     (click)="cancelDeleteTeam()">
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm" 
+     class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 w-[400px]">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-6 text-center">
+      <svg class="w-12 h-12 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+      <h2 class="text-xl font-semibold text-gray-900 mt-4">Delete Team</h2>
+      <p class="text-sm text-gray-500 mt-2">
+        Are you sure you want to delete the team <span class="font-semibold">{{ teamToDelete?.name }}</span>? 
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-3">
+      <button (click)="cancelDeleteTeam()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="deleteTeam()" 
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+        Delete
+      </button>
+    </div>
+  </div>
+</div> 

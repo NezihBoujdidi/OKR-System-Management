@@ -1,0 +1,157 @@
+<!-- Beautiful Form Container with Yellow Accent -->
+<div class="bg-white w-full">
+  <!-- Beautiful Form Header with Yellow Accent -->
+  <div class="flex items-center gap-3 p-4 mb-2">
+    <div class="w-1 h-8 bg-yellow-400 rounded-full"></div>
+    <div>
+      <p class="text-sm text-gray-500 mt-1">Complete the form below to define your objective</p>
+    </div>
+  </div>
+
+  <form [formGroup]="objectiveForm" (ngSubmit)="handleSubmit()" class="space-y-6">
+    <!-- Title Field -->
+    <div class="space-y-1">
+      <label for="title" class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+        Objective Title <span class="text-red-500">*</span>
+      </label>
+      <input type="text" 
+             id="title" 
+             formControlName="title"
+             class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+             [ngClass]="{'border-red-300 focus:ring-red-500': title?.invalid && title?.touched}"
+             placeholder="What do you want to achieve?">
+      <div *ngIf="title?.invalid && title?.touched" class="text-red-500 text-xs mt-1">
+        <span *ngIf="title?.errors?.['required']">Title is required</span>
+        <span *ngIf="title?.errors?.['maxlength']">Title cannot exceed 100 characters</span>
+      </div>
+    </div>
+
+    <!-- Description Field -->
+    <div class="space-y-1">
+      <label for="description" class="block text-sm font-medium text-gray-700">
+        Description
+      </label>
+      <textarea id="description" 
+                formControlName="description"
+                rows="3"
+                class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none"
+                placeholder="Provide details about this objective"></textarea>
+    </div>
+
+    <!-- Responsible Team Selector -->
+    <div class="space-y-1">
+      <label for="responsibleTeamId" class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+        Responsible Team <span class="text-red-500">*</span>
+      </label>
+      <select id="responsibleTeamId"
+              formControlName="responsibleTeamId"
+              class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              required>
+        <option value="" disabled selected>Select a team</option>
+        <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
+      </select>
+      <div *ngIf="objectiveForm.get('responsibleTeamId')?.invalid && objectiveForm.get('responsibleTeamId')?.touched" class="text-red-500 text-xs mt-1">
+        Responsible team is required
+      </div>
+    </div>
+
+    <!-- Priority and Status Fields -->
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Priority Field -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+          Priority <span class="text-red-500">*</span>
+        </label>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let item of priorities" 
+                  type="button"
+                  (click)="objectiveForm.get('priority')?.setValue(item.value)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-full transition-all border focus:outline-none"
+                  [ngClass]="[
+                    objectiveForm.get('priority')?.value === item.value 
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                  ]">
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Field -->
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+          Status <span class="text-red-500">*</span>
+        </label>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let item of statuses" 
+                  type="button"
+                  (click)="objectiveForm.get('status')?.setValue(item.value)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-full transition-all border focus:outline-none"
+                  [ngClass]="[
+                    objectiveForm.get('status')?.value === item.value 
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                  ]">
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date Range -->
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Start Date -->
+      <div class="space-y-1">
+        <label for="startedDate" class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+          Start Date <span class="text-red-500">*</span>
+        </label>
+        <input type="date" 
+               id="startedDate" 
+               formControlName="startedDate"
+               class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+      </div>
+
+      <!-- End Date -->
+      <div class="space-y-1">
+        <label for="endDate" class="block text-sm font-medium text-gray-700 flex items-center gap-1">
+          End Date <span class="text-red-500">*</span>
+        </label>
+        <input type="date" 
+               id="endDate" 
+               formControlName="endDate"
+               class="w-full px-3 py-2 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+      <!-- Delete Button (only for edit mode) -->
+      <button *ngIf="isEdit" 
+              type="button"
+              (click)="handleDelete()"
+              class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+        Delete
+      </button>
+
+      <div class="flex-grow"></div>
+      
+      <!-- Cancel Button -->
+      <button type="button"
+              (click)="handleCancel()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+        Cancel
+      </button>
+      
+      <!-- Submit Button -->
+      <button type="submit"
+              [disabled]="objectiveForm.invalid || isSubmitting"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        {{ isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update' : 'Create') }} Objective
+      </button>
+    </div>
+  </form>
+</div>

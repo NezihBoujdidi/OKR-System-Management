@@ -1,0 +1,99 @@
+<div class="flex">
+  <app-navigation-sidebar activeRoute="profile"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="profile"></app-content-sidebar>
+  
+  <!-- Main Content -->
+  <div class="ml-[312px] flex-1 min-h-screen bg-gray-50">
+    <div class="max-w-3xl mx-auto py-8 px-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900">Profile Guidelines & Information</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Understanding your profile management and organizational policies
+        </p>
+      </div>
+
+      <!-- Introduction Card -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-lg font-medium text-gray-900">About Your Profile Management</h2>
+            <p class="mt-2 text-sm text-gray-500">
+              Your profile contains both organization-managed and self-managed information. This guide explains what you can modify directly and what requires administrative assistance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guidelines List -->
+      <div class="space-y-4">
+        <div *ngFor="let item of guidelines" 
+             class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div class="p-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-lg font-medium text-gray-900">
+                  {{item.question}}
+                </h3>
+                <div class="mt-2 text-sm text-gray-500 space-y-2"
+                     [innerHTML]="item.answer | lineBreaks">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="mt-8 bg-accent/5 rounded-lg border border-accent/10 p-6">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Need to update your information?</h3>
+            <p class="mt-2 text-sm text-gray-500">
+              Contact your IT administrator or organization manager for assistance with updating your professional information.
+            </p>
+            <a *ngIf="AdminEmail; else noEmail" href="mailto:{{AdminEmail}}" 
+               class="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent/80">
+              {{contactText}}
+              <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+            <ng-template #noEmail>
+              <span class="mt-4 inline-flex items-center text-sm font-medium text-gray-400 cursor-not-allowed">
+                {{contactText}} (email unavailable)
+                <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

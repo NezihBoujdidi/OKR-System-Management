@@ -1,0 +1,432 @@
+<!-- Chat View -->
+<div class="flex flex-col h-full w-full animate-fadeIn transform transition-all duration-300">
+  <!-- Chat Body - More professional background -->
+  <div class="flex-1 overflow-hidden bg-gradient-to-br from-[#131b2c] to-[#1a2236]" 
+        style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.343 4-4s-1.343-4-4-4-4 1.343-4 4 1.343 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z\' fill=\'%232d3748\' fill-opacity=\'0.07\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');">
+
+    <!-- Messages Container - Improved scrolling -->
+    <div class="h-full overflow-y-auto py-6 px-4 sm:px-6 scroll-smooth hide-scrollbar">
+      <!-- Empty State or Welcome Message - More refined -->
+      <div *ngIf="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center animate-fadeIn pt-6">
+        <div class="relative mb-4">
+          <div class="absolute inset-0 bg-gradient-to-r from-accent/5 to-accent/10 blur-xl rounded-full"></div>
+          <div class="bg-gradient-to-br from-[#131b2c]/80 to-[#1a2236]/80 rounded-full p-6 mb-4 animate-float shadow-xl shadow-accent/5 border border-gray-700/30 relative z-10">
+            <i class="fas fa-robot text-4xl text-accent"></i>
+          </div>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-3 animate-fadeInUp" style="animation-delay: 200ms">Welcome to OKR Assistant</h2>
+        <p class="text-sm text-gray-300 max-w-lg mb-6 animate-fadeInUp leading-relaxed" style="animation-delay: 400ms">
+          I'm here to help you manage your Objectives and Key Results efficiently. How can I assist you today?
+        </p>
+        
+        <div class="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto animate-fadeInUp" style="animation-delay: 600ms">
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="messageInput.setValue('Create a new OKR session for Q3 2024'); sendMessage()">
+            <i class="fas fa-plus text-accent group-hover:text-white text-[10px]"></i>
+            <span>Create new OKR session</span>
+          </button>
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="messageInput.setValue('Help me track progress on my current OKRs'); sendMessage()">
+            <i class="fas fa-chart-line text-accent group-hover:text-white text-[10px]"></i>
+            <span>Track OKR progress</span>
+          </button>
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="messageInput.setValue('Suggest some key results for team collaboration objective'); sendMessage()">
+            <i class="fas fa-lightbulb text-accent group-hover:text-white text-[10px]"></i>
+            <span>Get OKR ideas</span>
+          </button>
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="testListOkrSessions()">
+            <i class="fas fa-table text-accent group-hover:text-white text-[10px]"></i>
+            <span>List OKR Sessions</span>
+          </button>
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="testListKeyResultTasks()">
+            <i class="fas fa-tasks text-accent group-hover:text-white text-[10px]"></i>
+            <span>List My Tasks</span>
+          </button>
+          <button 
+            class="px-3 py-2 bg-[#131b2c]/80 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white transition-all duration-200 text-xs flex items-center gap-1.5 group hover:border-accent/20 shadow-sm hover:shadow-md"
+            (click)="testListTeams()">
+            <i class="fas fa-users text-accent group-hover:text-white text-[10px]"></i>
+            <span>List Teams</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Message List - More refined messages -->
+      <div *ngIf="messages.length > 0 || isTyping" class="flex flex-col space-y-5 w-full px-2 sm:px-4 max-w-4xl mx-auto">
+        <!-- Regular Messages -->
+        <ng-container *ngFor="let message of messages; let i = index">
+          <div class="animate-fadeIn w-full"
+              [style.animation-delay]="(i * 0.1) + 's'">
+              
+            <!-- Message Container - More compact and professional -->
+            <div class="flex items-start gap-3 mb-1.5 w-full" [ngClass]="{'flex-row-reverse': message.sender === 'user'}">
+              <!-- Avatar - Smaller and more refined -->
+              <div *ngIf="message.sender === 'bot'" 
+                  class="flex-shrink-0 w-7 h-7 rounded-md bg-gradient-to-br from-[#131b2c]/90 to-[#1a2236]/90 flex items-center justify-center shadow-sm border border-gray-700/40">
+                <i class="fas fa-robot text-accent text-xs"></i>
+              </div>
+              
+              <div *ngIf="message.sender === 'user'" 
+                  class="flex-shrink-0 w-7 h-7 rounded-md bg-gradient-to-br from-accent to-accent/90 flex items-center justify-center text-primary text-xs font-medium shadow-sm">
+                U
+              </div>
+              
+              <!-- Content - Improved styling -->
+              <div class="flex flex-col" [ngClass]="{'items-end': message.sender === 'user', 'items-start': message.sender === 'bot'}" [ngStyle]="{'max-width': '80%', 'margin-left': message.sender === 'user' ? 'auto' : '0'}">
+                <!-- Sender Name and Timestamp - More subtle -->
+                <div class="text-[10px] font-medium mb-1 px-1" [ngClass]="{'text-right w-full': message.sender === 'user'}">
+                  <span *ngIf="message.sender === 'user'" class="text-accent">You</span>
+                  <span *ngIf="message.sender === 'bot'" class="text-accent">OKR Assistant</span>
+                  <span class="text-gray-500 text-[9px] ml-1.5">{{ message.timestamp | date:'h:mm a' }}</span>
+                </div>
+                
+                <!-- Message Content - Refined bubble design -->
+                <div *ngIf="message.type !== 'success'" [ngClass]="{
+                      'py-3 px-4 rounded-xl shadow-sm transition-all duration-300': true,
+                      'text-primary bg-accent bg-gradient-to-r from-accent to-accent/90 hover:shadow-md hover:shadow-accent/10 rounded-tr-sm ml-auto text-sm': message.sender === 'user',
+                      'bg-gradient-to-r from-[#1b2538]/90 to-[#1e2941]/90 text-white hover:shadow-md hover:shadow-slate-800/20 rounded-tl-sm border border-gray-700/20 text-sm': message.sender === 'bot'
+                    }"
+                    [style.animation-delay]="(i * 0.1 + 0.05) + 's'">
+                  
+                  <!-- Regular message content -->
+                  <div class="whitespace-pre-wrap break-words leading-relaxed">
+                    {{ message.content }}
+                  </div>
+
+                  <!-- File attachment display -->
+                  <div *ngIf="message.type === 'file'" class="mt-2 bg-gradient-to-r from-gray-800/40 to-gray-800/20 backdrop-blur-sm rounded-lg border border-gray-700/30 overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg hover:border-accent/30 group">
+                    <div class="flex items-center p-2">
+                      <div class="flex-shrink-0 rounded-md bg-accent/15 w-8 h-8 flex items-center justify-center shadow-inner overflow-hidden border border-accent/20">
+                        <i class="fas fa-file-pdf text-accent text-md"></i>
+                      </div>
+                      <div class="ml-2 flex-1">
+                        <div class="flex items-center justify-between">
+                          <div class="text-xs font-medium text-white truncate">{{ message.fileName }}</div>
+                          <div class="flex items-center gap-1">
+                            <button class="text-gray-400 hover:text-accent p-1 rounded-full transition-colors opacity-0 group-hover:opacity-100 text-xs">
+                              <i class="fas fa-external-link-alt text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="text-xs text-gray-400">PDF Document</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Table data display for bot messages -->
+                  <app-data-table-message *ngIf="message.type === 'table' && message.tableData" [response]="message.tableData"></app-data-table-message>
+                </div>
+
+                <!-- Success message display -->
+                <app-success-message *ngIf="message.type === 'success' && message.entityInfo" [entityInfo]="message.entityInfo"></app-success-message>
+                
+                <!-- Message Actions - Only shown for bot messages -->
+                <div *ngIf="message.sender === 'bot'" class="flex gap-2 mt-1 ml-1 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                  <button class="text-gray-500 hover:text-accent text-[10px] flex items-center gap-1 transition-colors duration-200">
+                    <i class="fas fa-copy"></i>
+                    <span>Copy</span>
+                  </button>
+                  <button class="text-gray-500 hover:text-accent text-[10px] flex items-center gap-1 transition-colors duration-200">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Like</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Typing Animation Message - This is separate from the regular message list -->
+        <div *ngIf="isTyping" class="animate-fadeIn w-full">
+          <div class="flex items-start gap-3 mb-1.5 w-full">
+            <!-- Bot Avatar -->
+            <div class="flex-shrink-0 w-7 h-7 rounded-md bg-gradient-to-br from-[#131b2c]/90 to-[#1a2236]/90 flex items-center justify-center shadow-sm border border-gray-700/40">
+              <i class="fas fa-robot text-accent text-xs"></i>
+            </div>
+            
+            <!-- Typing Content -->
+            <div class="flex flex-col items-start max-w-[80%]">
+              <!-- Sender Name and Timestamp -->
+              <div class="text-[10px] font-medium mb-1 px-1">
+                <span class="text-accent">OKR Assistant</span>
+                <span class="text-gray-500 text-[9px] ml-1.5">typing...</span>
+              </div>
+              
+              <!-- Typing Message Bubble -->
+              <div class="py-3 px-4 rounded-xl shadow-sm transition-all duration-300 bg-gradient-to-r from-[#1b2538]/90 to-[#1e2941]/90 text-white rounded-tl-sm border border-gray-700/20 text-sm relative">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="typing-text-container flex-1">
+                    <div class="text-white text-sm leading-relaxed">
+                      {{ typingMessage }}<span class="typing-cursor animate-pulse text-accent">|</span>
+                    </div>
+                  </div>
+                  <button 
+                    (click)="skipTypingAnimation()"
+                    class="flex-shrink-0 px-2 py-1 bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/40 text-accent text-xs rounded transition-all duration-200 font-medium">
+                    Skip
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Indicator - More subtle animation -->
+      <div *ngIf="loading" class="py-4 flex justify-center animate-fadeIn">
+        <div class="bg-[#111827]/70 border border-gray-700/30 rounded-md shadow-sm px-4 py-2 flex items-center gap-3">
+          <div class="flex gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-accent animate-typing1"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-accent animate-typing2"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-accent animate-typing3"></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-accent/10 flex items-center justify-center shadow-sm animate-pulse-subtle">
+              <i class="fas fa-robot text-accent text-[8px]"></i>
+            </div>
+            <p class="text-xs text-gray-300 font-medium">AI assistant is thinking...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message - More refined error style -->
+  <div *ngIf="error" class="bg-red-900/20 border-t border-red-800/30 px-6 py-1.5 text-red-400 text-xs animate-fadeIn">
+    <div class="flex items-center max-w-4xl mx-auto">
+      <i class="fas fa-exclamation-circle mr-2 text-[10px]"></i>
+      {{ error }}
+      <button (click)="error = null" class="ml-auto text-red-400 hover:text-red-300">
+        <i class="fas fa-times text-[10px]"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Smart Replies Section -->
+  <div *ngIf="showSmartReplies && smartReplies.length > 0" 
+       class="px-4 py-2 bg-gradient-to-b from-[#0f172a] to-[#111827] border-t border-gray-800/40 animate-fadeIn">
+    <div class="max-w-4xl mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs text-gray-400 font-medium">Suggested replies</span>
+        <button (click)="hideSmartReplies()" class="text-gray-500 hover:text-gray-300 text-xs">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button 
+          *ngFor="let reply of smartReplies"
+          (click)="useSmartReply(reply)"
+          class="px-3 py-1.5 bg-gray-800/60 border border-gray-700/40 rounded-md text-gray-300 hover:bg-gray-700/60 hover:text-white hover:border-accent/20 transition-all duration-200 text-xs flex items-center gap-1.5 group shadow-sm hover:shadow-md">
+          <i class="fas fa-magic text-accent group-hover:text-white text-[10px]"></i>
+          <span>{{ reply }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Input - Enhanced Design -->
+  <div class="px-4 py-4 bg-gradient-to-b from-[#111827] to-[#1e293b] border-t border-gray-800/60 animate-fadeInUp">
+    <div class="relative max-w-4xl mx-auto">
+      <!-- Speech Recognition Indicator - More refined -->
+      <div *ngIf="isListening" class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-[#111827]/90 border border-accent/20 rounded-md px-3 py-1.5 flex items-center gap-3 shadow-md animate-fadeIn z-30">
+        <div class="flex items-center gap-1.5">
+          <div class="relative">
+            <div class="absolute inset-0 bg-accent/20 rounded-full animate-ping"></div>
+            <div class="w-2 h-2 rounded-full bg-accent relative"></div>
+          </div>
+          <span class="text-accent text-xs font-medium">Listening to your voice...</span>
+        </div>
+        <button (click)="startSpeechToText()" class="text-gray-400 hover:text-white transition-colors ml-1">
+          <i class="fas fa-times text-[10px]"></i>
+        </button>
+      </div>
+      
+      <!-- File upload loading state - Only shown when actually uploading -->
+      <div *ngIf="isFileUploading" 
+          class="absolute -top-14 left-1/2 transform -translate-x-1/2 z-30 animate-fadeIn"
+          style="animation-duration: 0.3s;">
+        <div class="bg-[#1a2236] px-3 py-2 rounded-md shadow-sm border border-accent/20 flex items-center gap-2">
+          <div class="animate-spin h-4 w-4 text-accent">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <span class="text-xs text-white font-medium">Uploading document...</span>
+        </div>
+      </div>
+      
+      <div class="flex flex-col gap-2">
+        <!-- Selected file preview - shown in the input area when a file is selected -->
+        <div *ngIf="selectedFile && !isFileUploading" 
+             class="w-full px-4 py-3 rounded-t-lg border border-gray-700/50 bg-gradient-to-r from-gray-800/70 to-gray-800/50 shadow-sm animate-fadeIn">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-md flex items-center justify-center bg-accent/15 border border-accent/20 shadow-sm">
+                <i class="fas fa-file-pdf text-accent text-lg"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-white truncate">{{ selectedFile.name }}</div>
+                <div class="text-xs text-gray-400">{{ getFileSize(selectedFile.size) }} · PDF</div>
+                <div class="text-xs text-accent/80 mt-1">Add a descriptive prompt below to get better results</div>
+              </div>
+            </div>
+            <button (click)="cancelFileSelection()" 
+                    class="p-1.5 rounded-full bg-gray-700/50 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors">
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Input area with file upload and send buttons -->
+        <div class="relative flex-1">
+          <div class="flex">
+            <div class="relative flex-grow">
+              <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <i class="fas fa-comment-dots text-sm"></i>
+              </div>
+            
+              <textarea 
+                [formControl]="messageInput"
+                [placeholder]="selectedFile ? 'Example: Analyze this file and propose a plan...' : 'Type your message or ask about OKRs...'"
+                (keyup.enter)="sendMessage()"
+                (input)="adjustTextareaHeight($event)"
+                (keydown)="adjustTextareaHeight($event)"
+                rows="1"
+                class="w-full py-3 pl-10 pr-14 rounded-lg border border-gray-700/50 bg-gradient-to-r from-gray-800/70 to-gray-800/50 text-white focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-transparent placeholder-gray-500 transition-all duration-300 hover:border-gray-600/70 shadow-inner resize-none min-h-[46px] max-h-[180px] overflow-y-auto text-sm"
+                [ngClass]="{'rounded-t-none': selectedFile && !isFileUploading}"
+                [ngStyle]="{'overflow-y': messageInput.value?.includes('\n') ? 'auto' : 'hidden'}"
+              ></textarea>
+              
+              <!-- File upload button - positioned in the textarea -->
+              <div class="absolute right-12 top-1/2 transform -translate-y-1/2 flex items-center">
+                <!-- Hidden file input, triggered by the button -->
+                <input 
+                  type="file" 
+                  #fileInput 
+                  accept=".pdf" 
+                  class="hidden" 
+                  (change)="handleFileSelection($event)" 
+                />
+                
+                <!-- File upload button only shown when no file is selected -->
+                <button 
+                  *ngIf="!selectedFile && !loading"
+                  (click)="fileInput.click()" 
+                  class="p-1.5 text-gray-400 hover:text-accent rounded-full transition-all duration-200 hover:bg-gray-700/50"
+                  title="Upload PDF file">
+                  <i class="fas fa-paperclip"></i>
+                </button>
+              </div>
+              
+              <!-- Send button - positioned in the textarea -->
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <button 
+                  (click)="sendMessage()" 
+                  [disabled]="(messageInput.invalid && !selectedFile) || loading" 
+                  [ngClass]="{
+                    'p-1.5 rounded-full transition-all duration-300': true,
+                    'bg-accent text-white shadow-md hover:bg-accent/90': (messageInput.valid || selectedFile) && !loading,
+                    'bg-gray-700/50 text-gray-500 cursor-not-allowed': (messageInput.invalid && !selectedFile) || loading
+                  }">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Input toolbar/controls -->
+          <div class="flex items-center justify-between mt-2 text-xs">
+            <div class="text-gray-500">
+              <span *ngIf="selectedFile">File ready to send with your message</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <!-- Voice input button -->
+              <button 
+                (click)="startSpeechToText()" 
+                class="p-1 text-gray-400 hover:text-accent rounded-full transition-colors" 
+                title="Voice input">
+                <i class="fas fa-microphone text-xs"></i>
+              </button>
+              
+              <!-- Text-to-speech toggle button -->
+              <button 
+                (click)="toggleTextToSpeech()" 
+                class="p-1 transition-colors rounded-full" 
+                [class.text-accent]="isTextToSpeechEnabled"
+                [class.text-gray-400]="!isTextToSpeechEnabled"
+                [class.hover:text-accent]="!isTextToSpeechEnabled"
+                title="Toggle voice responses">
+                <i class="fas fa-volume-up text-xs"></i>
+              </button>
+
+              <!-- Stop speaking button (only shown when speaking) -->
+              <button 
+                *ngIf="isSpeaking"
+                (click)="stopSpeaking()" 
+                class="p-1 text-red-400 hover:text-red-300 rounded-full transition-colors animate-pulse" 
+                title="Stop speaking">
+                <i class="fas fa-stop text-xs"></i>
+              </button>
+              
+              <!-- Reset chat button -->
+              <button 
+                (click)="resetChat()" 
+                class="p-1 text-gray-400 hover:text-red-400 rounded-full transition-colors"
+                title="Reset chat">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add custom styles for animations -->
+<style>
+  /* Upload ripple effect */
+  .upload-ripple-container {
+    border-radius: 0.375rem; /* match the button's rounded-md */
+  }
+  
+  .upload-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(99, 102, 241, 0) 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  input[type="file"]:active + .upload-ripple {
+    animation: ripple 0.8s ease-out;
+  }
+  
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 0.7;
+    }
+    100% {
+      width: 250%;
+      height: 250%;
+      opacity: 0;
+    }
+  }
+</style> 

@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "OKR Database",
+            "Group": "Servers",
+            "Host": "okr.postgres",
+            "Port": 5432,
+            "MaintenanceDB": "okr",
+            "Username": "myuser",
+            "Password": "mypassword",
+            "SSLMode": "prefer"
+        }
+    }
+}

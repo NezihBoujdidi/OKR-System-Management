@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="claudeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#991b1b" />
+    </linearGradient>
+    <filter id="claudeGlow">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="softShadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#7f1d1d" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Main circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#claudeGradient)" filter="url(#softShadow)" />
+  <circle cx="50" cy="50" r="42" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.3" />
+  
+  <!-- Abstract atom-like pattern in background -->
+  <g opacity="0.15">
+    <ellipse cx="50" cy="50" rx="30" ry="15" fill="none" stroke="#ffffff" stroke-width="1" />
+    <ellipse cx="50" cy="50" rx="15" ry="30" fill="none" stroke="#ffffff" stroke-width="1" />
+  </g>
+  
+  <!-- Claude Face Symbol -->
+  <g filter="url(#claudeGlow)">
+    <!-- Smile -->
+    <path d="M35 55 Q50 70 65 55" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" />
+    
+    <!-- Eyes -->
+    <circle cx="35" cy="40" r="6" fill="#ffffff" />
+    <circle cx="65" cy="40" r="6" fill="#ffffff" />
+    
+    <!-- Pupils -->
+    <circle cx="35" cy="40" r="2.5" fill="#dc2626" />
+    <circle cx="65" cy="40" r="2.5" fill="#dc2626" />
+  </g>
+  
+  <!-- Anthropic subtle logo hint -->
+  <path d="M40 75 L50 65 L60 75" stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.5" />
+  
+  <!-- Subtle outer glow -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="#dc2626" stroke-width="2" opacity="0.3" />
+</svg> 

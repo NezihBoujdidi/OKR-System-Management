@@ -1,0 +1,102 @@
+<div class="flex h-screen">
+    <!-- Main Content Area -->
+    <div class="ml-[312px] bg-gray-50 w-[calc(100%-312px)]">
+        <!-- Header with Tabs -->
+        <div class="bg-white border-b px-6 shadow-md">
+            <!-- Top Section with Back Button and Title -->
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" 
+                        (click)="goBack()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Sessions /</span>
+                        <h1 class="text-lg font-semibold text-gray-900">{{ okrSession.title }}</h1>
+                    </div>
+                </div>
+
+                <!-- Session Status Badge -->
+                <!-- <div class="flex items-center gap-3">
+                    <span class="px-3 py-1.5 text-sm font-medium rounded-full"
+                          [ngClass]="{
+                            'bg-blue-100 text-blue-700': okrSession?.status === Status.NotStarted,
+                            'bg-green-100 text-green-700': okrSession?.status === Status.InProgress,
+                            'bg-gray-100 text-gray-700': okrSession?.status === Status.Completed,
+                            'bg-emerald-100 text-emerald-700': okrSession?.status === Status.Overdue
+                          }">
+                        {{ okrSession?.status === Status.NotStarted ? 'Not Started' :
+                           okrSession?.status === Status.InProgress ? 'In Progress' :
+                           okrSession?.status === Status.Completed ? 'Completed' :
+                           okrSession?.status === Status.Overdue ? 'Overdue' : 'Unknown' }}
+                    </span>
+                </div> -->
+            </div>
+
+            <!-- Centered Tab Navigation -->
+            <div class="flex justify-center">
+                <nav class="flex gap-8" aria-label="Tabs">
+                    <!-- Objectives Tab -->
+                    <button 
+                        (click)="setActiveTab('objectives')"
+                        class="relative inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all rounded-lg hover:bg-gray-100"
+                        [class.text-primary]="activeTab === 'objectives'"
+                        [class.bg-primary]="activeTab === 'objectives'"
+                        [class.bg-opacity-5]="activeTab === 'objectives'"
+                        [class.text-gray-600]="activeTab !== 'objectives'">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                             [class.text-primary]="activeTab === 'objectives'"
+                             [class.text-gray-400]="activeTab !== 'objectives'"
+                             class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                  d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        Objectives
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 transition-colors"
+                             [class.bg-primary]="activeTab === 'objectives'"></div>
+                    </button>
+
+                    <!-- Alignment Tab -->
+                    <button 
+                        (click)="setActiveTab('alignment')"
+                        class="relative inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all rounded-lg hover:bg-gray-100"
+                        [class.text-primary]="activeTab === 'alignment'"
+                        [class.bg-primary]="activeTab === 'alignment'"
+                        [class.bg-opacity-5]="activeTab === 'alignment'"
+                        [class.text-gray-600]="activeTab !== 'alignment'">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                             [class.text-primary]="activeTab === 'alignment'"
+                             [class.text-gray-400]="activeTab !== 'alignment'"
+                             class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                  d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
+                        Alignment
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 transition-colors"
+                             [class.bg-primary]="activeTab === 'alignment'"></div>
+                    </button>
+
+
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <div [ngSwitch]="activeTab">
+                <div *ngSwitchCase="'objectives'">
+                    <app-session-objectives *ngIf="okrSession" [okrSession]="okrSession"></app-session-objectives>
+                </div>
+                <div *ngSwitchCase="'alignment'">
+                    <app-session-alignment *ngIf="okrSession" [okrSession]="okrSession"></app-session-alignment>
+                </div>   
+                <!--              
+                <div *ngSwitchCase="'statistics'">
+                    <app-session-statistics *ngIf="okrSession" [okrSession]="okrSession"></app-session-statistics>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>

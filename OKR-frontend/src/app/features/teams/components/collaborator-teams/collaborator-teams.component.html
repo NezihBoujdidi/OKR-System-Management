@@ -1,0 +1,56 @@
+<div class="flex">
+    <app-navigation-sidebar activeRoute="employees"></app-navigation-sidebar>
+    <app-content-sidebar activeSection="employees"></app-content-sidebar>
+    
+    <!-- Main Content -->
+    <div class="ml-[312px] flex-1">
+        <div class="min-h-screen bg-gray-50">
+            <!-- Header -->
+            <div class="bg-white border-b">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <a routerLink="/dashboard" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-primary text-xl font-semibold">My Teams</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teams List Section -->
+            <div class="flex-1 min-h-0 overflow-y-scroller pr-2 pl-6 py-4">
+                <!-- Teams Grid -->
+                <div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <app-card *ngFor="let team of teams"
+                        [title]="team.name"
+                        [description]="team.description"
+                        [teamManagerId]="team.teamManagerId"
+                        [teamMembers]="team.teamMembers"
+                        [managerName]="team.managerName"
+                        [managerRole]="team.managerRole"
+                        [managerImage]="team.managerImage"
+                        [createdDate]="team.createdDate"
+                        [organizationId]="team.organizationId"
+                        [hasEditPermission]="false"
+                        (click)="selectTeam(team)">
+                    </app-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Details Modal -->
+<app-team-details-modal
+    *ngIf="showTeamDetailsModal"
+    [team]="selectedTeam"
+    [currentUser]="currentUser"
+    (close)="showTeamDetailsModal = false"
+    (teamsUpdated)="handleTeamsUpdated()">
+</app-team-details-modal> 

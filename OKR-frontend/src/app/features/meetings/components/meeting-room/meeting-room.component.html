@@ -1,0 +1,45 @@
+<div class="flex flex-col h-screen w-full overflow-hidden">
+  <!-- Meeting Header -->
+  <div class="bg-primary text-white flex items-center justify-between px-6 py-3 z-10">
+    <div class="flex items-center gap-3">
+      <button 
+        (click)="leaveMeeting()" 
+        class="p-2 rounded-full hover:bg-primary-dark transition-colors">
+        <i class="fas fa-arrow-left text-lg"></i>
+      </button>
+      <h2 class="text-xl font-semibold">{{ meetingTitle }}</h2>
+    </div>
+    
+    <div>
+      <button 
+        (click)="leaveMeeting()" 
+        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center gap-2">
+        <i class="fas fa-phone-slash"></i>
+        <span>End Meeting</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Meeting Container -->
+  <div class="flex-1 relative bg-gray-900">
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-900 z-20">
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-white text-lg mb-2">Joining meeting...</p>
+        <p class="text-gray-400 text-sm max-w-md text-center mb-6">This may take a few moments. Please allow access to your camera and microphone when prompted.</p>
+        
+        <!-- Loading troubleshooting options -->
+        <button 
+          (click)="isLoading = false" 
+          class="px-4 py-2 bg-accent hover:bg-accent/90 text-primary rounded-md transition-colors mt-4 flex items-center gap-2">
+          <i class="fas fa-eye"></i>
+          <span>Show Meeting Anyway</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Jitsi Container -->
+    <div #meetingContainer class="w-full h-full"></div>
+  </div>
+</div> 

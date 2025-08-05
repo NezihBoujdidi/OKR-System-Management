@@ -1,0 +1,326 @@
+<div class="flex">
+  <app-navigation-sidebar activeRoute="home"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="home"></app-content-sidebar>
+
+  <!-- Main Content -->
+  <div class="ml-[312px] flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-white p-8">
+    <!-- Header with Platform Summary -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Super Admin Dashboard</h1>
+          <p class="mt-1 text-gray-500">Platform-wide analytics and management overview</p>
+        </div>
+        <div class="flex space-x-3">
+          <!-- <button class="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+            <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <span class="text-sm font-medium text-gray-700">Export Data</span>
+          </button> -->
+          <button (click)="generateDashboardReport()" 
+                 [disabled]="isGeneratingReport"
+                 class="flex items-center px-4 py-2 bg-accent hover:bg-accent-hover text-primary rounded-lg shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed">
+            <svg *ngIf="!isGeneratingReport" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <svg *ngIf="isGeneratingReport" class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm font-medium">{{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Overview Card -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8 transform transition-all">
+      <div class="flex space-x-8">
+        <div class="flex-1">
+          <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md">
+              <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <h2 class="text-xl font-semibold text-gray-900">Platform Health & Metrics</h2>
+              <p class="text-sm text-gray-500">Comprehensive overview of system performance and growth</p>
+            </div>
+          </div>
+          <div class="mt-6 grid grid-cols-4 gap-6">
+            <!-- KPI 1: Total Users -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-blue-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-blue-700">Total Users</span>
+                </div>
+                <span class="flex items-center text-xs font-medium rounded-full px-2.5 py-1"
+                      [ngClass]="userGrowthPercentage > 0 ? 'text-green-600 bg-green-50' : (userGrowthPercentage < 0 ? 'text-red-600 bg-red-50' : 'text-gray-600 bg-gray-50')">
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          [attr.d]="userGrowthPercentage >= 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"></path>
+                  </svg>
+                  {{ userGrowthPercentage > 0 ? '+' : '' }}{{ userGrowthPercentage }}%
+                </span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{totalUsers}}</span>
+                <span class="ml-2 text-xs text-gray-500">registered users</span>
+              </div>
+              <div class="w-full h-1 bg-blue-100 rounded-full mt-3">
+                <div class="h-1 bg-blue-500 rounded-full" [style.width.%]="75"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 2: Organizations -->
+            <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-5 border border-purple-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-purple-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-purple-700">Organizations</span>
+                </div>
+                <span class="text-xs font-medium bg-purple-50 text-purple-600 px-2.5 py-1 rounded-full">Active</span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{totalOrganizations}}</span>
+                <span class="ml-2 text-xs text-gray-500">total orgs</span>
+              </div>
+              <div class="w-full h-1 bg-purple-100 rounded-full mt-3">
+                <div class="h-1 bg-purple-500 rounded-full" [style.width.%]="68"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 3: Subscribed Organizations -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-green-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-green-700">Subscribed</span>
+                </div>
+                <span class="text-xs font-medium bg-green-50 text-green-600 px-2.5 py-1 rounded-full">Revenue</span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{totalSubscribedOrgs}}</span>
+                <span class="ml-2 text-xs text-gray-500">paid plans</span>
+              </div>
+              <div class="w-full h-1 bg-green-100 rounded-full mt-3">
+                <div class="h-1 bg-green-500 rounded-full" [style.width.%]="totalSubscribedOrgs / (totalOrganizations || 1) * 100"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 4: OKR Sessions -->
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-5 border border-amber-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-amber-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-amber-700">OKR Sessions</span>
+                </div>
+                <span class="text-xs font-medium bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full">Active</span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{totalOkrSessions}}</span>
+                <span class="ml-2 text-xs text-gray-500">total sessions</span>
+              </div>
+              <div class="w-full h-1 bg-amber-100 rounded-full mt-3">
+                <div class="h-1 bg-amber-500 rounded-full" [style.width.%]="82"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="grid grid-cols-12 gap-6 mb-8">
+      <!-- User Growth Chart - Wider column -->
+      <div class="col-span-7 bg-white rounded-xl shadow-md border border-gray-100 p-6 transition-all duration-300 hover:shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Platform User Growth</h3>
+            <p class="text-sm text-gray-500">Tracking user acquisition and retention trends</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button 
+              (click)="toggleUserGrowthView('monthly')"
+              class="px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+              [ngClass]="userGrowthView === 'monthly' ? 'bg-accent text-primary shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              Monthly
+            </button>
+            <button 
+              (click)="toggleUserGrowthView('yearly')"
+              class="px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+              [ngClass]="userGrowthView === 'yearly' ? 'bg-accent text-primary shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              Yearly
+            </button>
+          </div>
+        </div>
+        <div class="relative h-80 w-full">
+          <!-- Decorative grid lines -->
+          <div class="absolute inset-0 grid grid-cols-6 w-full h-full pointer-events-none">
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+          </div>
+          <div class="absolute inset-0 grid grid-rows-4 w-full h-full pointer-events-none">
+            <div class="border-b border-gray-100"></div>
+            <div class="border-b border-gray-100"></div>
+            <div class="border-b border-gray-100"></div>
+          </div>
+          <!-- The actual chart -->
+          <canvas 
+            baseChart
+            [type]="'line'"
+            [datasets]="userGrowthData.datasets"
+            [labels]="userGrowthData.labels"
+            [options]="userGrowthOptions"
+            class="w-full h-full">
+          </canvas>
+        </div>
+      </div>
+      
+      <!-- User Roles Distribution - Narrower column -->
+      <div class="col-span-5 bg-white rounded-xl shadow-md border border-gray-100 p-6 transition-all duration-300 hover:shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">User Role Distribution</h3>
+            <p class="text-sm text-gray-500">Breakdown of user roles across the platform</p>
+          </div>
+          <div class="px-3 py-1.5 bg-accent-light text-accent rounded-lg text-sm font-medium">
+            Real-time data
+          </div>
+        </div>
+        <div class="relative h-80 w-full">
+          <canvas 
+            baseChart
+            [type]="'doughnut'"
+            [datasets]="userRolesData.datasets"
+            [labels]="userRolesData.labels"
+            [options]="userRolesOptions"
+            class="w-full h-full">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Subscription Metrics Section -->
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 transition-all duration-300 hover:shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Subscription Metrics</h3>
+            <p class="text-sm text-gray-500">Revenue and subscription performance analytics</p>
+          </div>
+          <div class="px-3 py-1.5 bg-accent-light text-accent rounded-lg text-sm font-medium">
+            Real-time data
+          </div>
+        </div>
+        
+        <!-- Subscription Metrics Cards -->
+        <div class="grid grid-cols-4 gap-6">
+          <!-- MRR -->
+          <div class="bg-gradient-to-b from-white to-green-50 rounded-xl p-5 border border-green-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center mb-4">
+              <div class="p-2 bg-green-100 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h4 class="text-base font-semibold text-gray-900">Monthly Recurring Revenue</h4>
+            </div>
+            <div class="ml-2 mt-4">
+              <div class="flex items-center">
+                <span class="text-2xl font-bold text-gray-900">${{ mrr | number:'1.0-0' }}</span>
+              </div>
+              <div class="text-sm text-gray-600 mt-1">Per month</div>
+            </div>
+          </div>
+          
+          <!-- ARR -->
+          <div class="bg-gradient-to-b from-white to-blue-50 rounded-xl p-5 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center mb-4">
+              <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h4 class="text-base font-semibold text-gray-900">Annual Recurring Revenue</h4>
+            </div>
+            <div class="ml-2 mt-4">
+              <div class="flex items-center">
+                <span class="text-2xl font-bold text-gray-900">${{ arr | number:'1.0-0' }}</span>
+              </div>
+              <div class="text-sm text-gray-600 mt-1">Per year</div>
+            </div>
+          </div>
+          
+          <!-- ARPU -->
+          <div class="bg-gradient-to-b from-white to-purple-50 rounded-xl p-5 border border-purple-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center mb-4">
+              <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <h4 class="text-base font-semibold text-gray-900">Avg Revenue Per User</h4>
+            </div>
+            <div class="ml-2 mt-4">
+              <div class="flex items-center">
+                <span class="text-2xl font-bold text-gray-900">${{ arpu | number:'1.2-2' }}</span>
+              </div>
+              <div class="text-sm text-gray-600 mt-1">Monthly</div>
+            </div>
+          </div>
+          
+          <!-- Churn Rate -->
+          <div class="bg-gradient-to-b from-white to-amber-50 rounded-xl p-5 border border-amber-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center mb-4">
+              <div class="p-2 bg-amber-100 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                </svg>
+              </div>
+              <h4 class="text-base font-semibold text-gray-900">Churn Rate</h4>
+            </div>
+            <div class="ml-2 mt-4">
+              <div class="flex items-center">
+                <span class="text-2xl font-bold text-gray-900">{{ churnRate | number:'1.1-1' }}%</span>
+              </div>
+              <div class="text-sm text-gray-600 mt-1">Last 30 days</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Plan Distribution Chart -->
+        <div class="mt-8">
+          <h4 class="text-base font-semibold text-gray-900 mb-4">Plan Distribution</h4>
+          <div class="h-72">
+            <canvas id="planDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

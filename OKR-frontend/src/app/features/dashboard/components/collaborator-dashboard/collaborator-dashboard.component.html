@@ -1,0 +1,388 @@
+<div class="flex">
+  <app-navigation-sidebar activeRoute="home"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="home"></app-content-sidebar>
+
+  <!-- Main Content -->
+  <div class="ml-[312px] flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-white p-8">
+    <!-- Header with Personal Summary -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Personal Dashboard</h1>
+          <p class="mt-1 text-gray-500">Track your performance and manage your tasks effectively</p>
+        </div>
+        <div class="flex space-x-3">
+          <!-- <button class="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+            <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <span class="text-sm font-medium text-gray-700">Export</span>
+          </button> -->
+          <button (click)="generateDashboardReport()"
+                 [disabled]="isGeneratingReport"
+                 class="flex items-center px-4 py-2 bg-accent hover:bg-accent-hover text-primary rounded-lg shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed">
+            <svg *ngIf="!isGeneratingReport" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <svg *ngIf="isGeneratingReport" class="w-4 h-4 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm font-medium">{{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Summary Card -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8 transform transition-all">
+      <div class="flex space-x-8">
+        <div class="flex-1">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-accent-light flex items-center justify-center">
+              <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h2 class="text-lg font-semibold text-gray-900">Personal Performance Overview</h2>
+              <p class="text-sm text-gray-500">Your progress tracking and task management</p>
+            </div>
+          </div>
+          <div class="mt-6 grid grid-cols-4 gap-6">
+            <!-- KPI 1: Performance Score -->
+            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-5 border border-indigo-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-indigo-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-indigo-700">Performance</span>
+                </div>
+                <span class="flex items-center text-xs font-medium rounded-full px-2.5 py-1"
+                      [ngClass]="performanceChange >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'">
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    [attr.d]="performanceChange >= 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"></path>
+                  </svg>
+                  {{performanceChange >= 0 ? '+' : ''}}{{performanceChange}}%
+                </span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{performanceScore}}%</span>
+                <span class="ml-2 text-xs text-gray-500">overall</span>
+              </div>
+              <div class="w-full h-1 bg-indigo-100 rounded-full mt-3">
+                <div class="h-1 bg-indigo-500 rounded-full" [style.width.%]="performanceScore"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 2: Completed Tasks -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-green-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-green-700">Completed</span>
+                </div>
+                <span class="flex items-center text-xs font-medium rounded-full px-2.5 py-1 text-green-600 bg-green-50">
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Done
+                </span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{completedTasks}}</span>
+                <span class="ml-2 text-xs text-gray-500">tasks</span>
+              </div>
+              <div class="w-full h-1 bg-green-100 rounded-full mt-3">
+                <div class="h-1 bg-green-500 rounded-full" [style.width.%]="completedTasks > 0 ? 70 : 0"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 3: Pending Tasks -->
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-5 border border-amber-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-amber-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-amber-700">In Progress</span>
+                </div>
+                <span class="flex items-center text-xs font-medium rounded-full px-2.5 py-1 text-amber-600 bg-amber-50">
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Ongoing
+                </span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{pendingTasks}}</span>
+                <span class="ml-2 text-xs text-gray-500">tasks</span>
+              </div>
+              <div class="w-full h-1 bg-amber-100 rounded-full mt-3">
+                <div class="h-1 bg-amber-500 rounded-full" [style.width.%]="pendingTasks > 0 ? 60 : 0"></div>
+              </div>
+            </div>
+            
+            <!-- KPI 4: Overdue Tasks -->
+            <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-5 border border-red-100 transition-all duration-300 hover:shadow-md">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center">
+                  <div class="p-2 bg-red-100 rounded-lg shadow-sm">
+                    <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <span class="ml-2 text-sm font-medium text-red-700">Overdue</span>
+                </div>
+                <span *ngIf="overdueTasksCount > 0" class="flex items-center text-xs font-medium rounded-full px-2.5 py-1 text-red-600 bg-red-50">
+                  <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Needs Attention
+                </span>
+              </div>
+              <div class="flex items-baseline mt-2">
+                <span class="text-3xl font-bold text-gray-900">{{overdueTasksCount}}</span>
+                <span class="ml-2 text-xs text-gray-500">tasks</span>
+              </div>
+              <div class="w-full h-1 bg-red-100 rounded-full mt-3">
+                <div class="h-1 bg-red-500 rounded-full" [style.width.%]="overdueTasksCount > 0 ? Math.min(100, (overdueTasksCount / (completedTasks + pendingTasks + overdueTasksCount || 1)) * 100) : 0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-12 gap-6 mb-8">
+      <!-- Task Completion Chart - Wider column -->
+      <div class="col-span-7 bg-white rounded-xl shadow-md border border-gray-100 p-6 transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Task Completion Rate</h3>
+            <p class="text-sm text-gray-500">Distribution of your tasks by status</p>
+          </div>
+          <div class="px-3 py-1.5 bg-accent-light text-accent rounded-lg text-sm font-medium">
+            Current Period
+          </div>
+        </div>
+        <div class="relative h-80 w-full">
+          <!-- The actual chart -->
+          <canvas baseChart
+                 [data]="taskCompletionData"
+                 [options]="taskCompletionOptions"
+                 type="doughnut"
+                 class="w-full h-full">
+          </canvas>
+        </div>
+      </div>
+      
+      <!-- Performance Trend - Narrower column -->
+      <div class="col-span-5 bg-white rounded-xl shadow-md border border-gray-100 p-6 transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Performance Trend</h3>
+            <p class="text-sm text-gray-500">Your achievement progression over time</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button (click)="togglePerformanceView('6months')"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg transition-all"
+                    [ngClass]="performanceView === '6months' ? 'bg-accent text-primary shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              6 Months
+            </button>
+            <button (click)="togglePerformanceView('12months')"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg transition-all"
+                    [ngClass]="performanceView === '12months' ? 'bg-accent text-primary shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              1 Year
+            </button>
+          </div>
+        </div>
+        <div class="relative h-80 w-full">
+          <!-- Decorative grid lines -->
+          <div class="absolute inset-0 grid grid-cols-4 w-full h-full pointer-events-none">
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+            <div class="border-r border-gray-100"></div>
+          </div>
+          <div class="absolute inset-0 grid grid-rows-4 w-full h-full pointer-events-none">
+            <div class="border-b border-gray-100"></div>
+            <div class="border-b border-gray-100"></div>
+            <div class="border-b border-gray-100"></div>
+          </div>
+          <!-- The actual chart -->
+          <canvas baseChart
+                 [data]="performanceTrendData"
+                 [options]="performanceTrendOptions"
+                 type="line"
+                 class="w-full h-full">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Details Section -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">My Task Board</h2>
+        <button routerLink="/okrs" class="px-4 py-2 bg-accent hover:bg-accent-hover text-primary rounded-lg shadow-sm text-sm font-medium transition-all flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+          Check Out My Tasks
+        </button>
+      </div>
+
+      <div *ngIf="taskDetails" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- To Do (In Progress) Panel -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-transform duration-300 ease-out group">
+          <div class="p-5 border-b border-gray-200 bg-[rgb(142,131,71)] flex justify-between items-center">
+            <div class="flex items-center">
+              <div class="p-2 bg-white/20 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-white">To Do / In Progress</h3>
+            </div>
+            <span class="px-2.5 py-1 bg-white/20 text-white text-xs font-semibold rounded-full">{{ taskDetails.inProgressTasks.length || 0 }}</span>
+          </div>
+          <div class="p-5 space-y-3 h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <ng-container *ngIf="taskDetails.inProgressTasks && taskDetails.inProgressTasks.length > 0; else noInProgressTasks">
+              <div *ngFor="let task of taskDetails.inProgressTasks" 
+                   class="bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:shadow-xl hover:scale-[1.03] hover:border-blue-200 transition-all duration-200 ease-in-out cursor-pointer"
+                   [ngClass]="getPriorityClass(task.priority).borderClass">
+                <div class="flex justify-between items-start mb-1">
+                  <h4 class="text-sm font-semibold text-gray-800 pr-2">{{ task.title }}</h4>
+                  <span class="text-xs font-medium px-2.5 py-1 rounded-full"
+                        [ngClass]="getPriorityClass(task.priority).textClass">
+                    {{ getPriorityText(task.priority) }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mb-2 line-clamp-2" *ngIf="task.description">{{ task.description }}</p>
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                  <span>Due: {{ formatDate(task.endDate) }}</span>
+                  <span class="font-medium" [ngClass]="getStatusClass(task.status)">{{ task.status }}</span>
+                </div>
+                <div class="mt-2 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-1.5 rounded-full bg-blue-500 shadow-inner" [style.width.%]="task.progress"></div>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noInProgressTasks>
+              <div class="flex flex-col items-center justify-center h-full text-center px-4">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <h4 class="font-semibold text-gray-700">All Caught Up!</h4>
+                <p class="text-sm text-gray-500 mt-1">You have no tasks in progress.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Recent Completed Tasks Panel -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-transform duration-300 ease-out group">
+          <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-emerald-400 to-teal-500 flex justify-between items-center">
+            <div class="flex items-center">
+              <div class="p-2 bg-white/20 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-white">Recently Completed</h3>
+            </div>
+            <span class="px-2.5 py-1 bg-white/20 text-white text-xs font-semibold rounded-full">{{ taskDetails.recentCompletedTasks.length || 0 }}</span>
+          </div>
+          <div class="p-5 space-y-3 h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <ng-container *ngIf="taskDetails.recentCompletedTasks && taskDetails.recentCompletedTasks.length > 0; else noCompletedTasks">
+              <div *ngFor="let task of taskDetails.recentCompletedTasks" 
+                   class="bg-white p-4 rounded-lg shadow-md border border-gray-200 opacity-80 hover:opacity-100 hover:shadow-xl hover:scale-[1.03] transition-all duration-200 ease-in-out cursor-pointer"
+                   [ngClass]="getPriorityClass(task.priority).borderClass">
+                <div class="flex justify-between items-start mb-1">
+                  <h4 class="text-sm font-medium text-gray-700 pr-2">{{ task.title }}</h4>
+                  <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-green-50 text-green-600">Completed</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-2 line-clamp-2" *ngIf="task.description">{{ task.description }}</p>
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                  <span>Completed: {{ formatDate(task.endDate) }}</span>
+                  <span class="font-medium px-2.5 py-1 rounded-full"
+                        [ngClass]="getPriorityClass(task.priority).textClass">
+                    {{ getPriorityText(task.priority) }}
+                  </span>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noCompletedTasks>
+              <div class="flex flex-col items-center justify-center h-full text-center px-4">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                </svg>
+                <h4 class="font-semibold text-gray-700">Nothing Completed Recently</h4>
+                <p class="text-sm text-gray-500 mt-1">Completed tasks will show up here.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Overdue Tasks Panel -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-transform duration-300 ease-out group">
+          <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-rose-400 to-pink-500 flex justify-between items-center">
+            <div class="flex items-center">
+              <div class="p-2 bg-white/20 rounded-lg mr-3">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-white">Overdue Tasks</h3>
+            </div>
+            <span class="px-2.5 py-1 bg-white/20 text-white text-xs font-semibold rounded-full">{{ taskDetails.overdueTasks.length || 0 }}</span>
+          </div>
+          <div class="p-5 space-y-3 h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <ng-container *ngIf="taskDetails.overdueTasks && taskDetails.overdueTasks.length > 0; else noOverdueTasks">
+              <div *ngFor="let task of taskDetails.overdueTasks" 
+                   class="p-4 rounded-lg shadow-md border border-red-200 hover:shadow-xl hover:scale-[1.03] hover:border-rose-300 transition-all duration-200 ease-in-out cursor-pointer"
+                   [ngClass]="getPriorityClass(task.priority).borderClass">
+                <div class="flex justify-between items-start mb-1">
+                  <h4 class="text-sm font-semibold text-red-800 pr-2">{{ task.title }}</h4>
+                  <span class="text-xs font-medium px-2.5 py-1 rounded-full"
+                        [ngClass]="getPriorityClass(task.priority).textClass">
+                    {{ getPriorityText(task.priority) }}
+                  </span>
+                </div>
+                <p class="text-xs text-red-600 mb-2 line-clamp-2" *ngIf="task.description">{{ task.description }}</p>
+                <div class="flex justify-between items-center text-xs text-red-600">
+                  <span>Due: {{ formatDate(task.endDate) }}</span>
+                  <span class="font-bold">OVERDUE</span>
+                </div>
+                <div class="mt-2 h-1.5 w-full bg-red-100 rounded-full overflow-hidden">
+                  <div class="h-1.5 rounded-full bg-rose-500 shadow-inner" [style.width.%]="task.progress"></div>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noOverdueTasks>
+              <div class="flex flex-col items-center justify-center h-full text-center px-4">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                <h4 class="font-semibold text-gray-700">No Overdue Tasks!</h4>
+                <p class="text-sm text-gray-500 mt-1">Keep up the great work!</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div> 

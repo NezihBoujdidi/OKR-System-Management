@@ -1,0 +1,233 @@
+<!-- OKR Alignment Diagram -->
+<div class="w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-5 relative">
+  <!-- Top Controls Bar -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 pb-4 border-b border-gray-100">
+    <div class="flex items-center mb-3 md:mb-0">
+      <h3 class="text-xl font-semibold text-gray-800">Alignment Diagram</h3>
+      <div class="ml-3 text-xs px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-medium flex items-center">
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
+        {{ nodeCount }} nodes
+      </div>
+      <!-- Updated tip with better visibility -->
+      <div class="ml-3 text-xs px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full font-medium flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        Double-click nodes to navigate
+      </div>
+    </div>
+    
+    <div class="flex flex-wrap items-center gap-2">
+      <!-- Zoom Controls with improved styling -->
+      <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+        <button (click)="zoomOut()" class="px-2.5 py-1.5 hover:bg-gray-50 transition-colors duration-150">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+          </svg>
+        </button>
+        <div class="px-2.5 py-1.5 text-xs font-medium text-gray-600 border-x border-gray-200 bg-gray-50">{{ zoomLevel }}%</div>
+        <button (click)="zoomIn()" class="px-2.5 py-1.5 hover:bg-gray-50 transition-colors duration-150">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Smart Layout button with enhanced styling -->
+      <button (click)="applySmartLayout()" class="px-3.5 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-150 shadow-sm flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        Smart Layout
+      </button>
+      
+      <!-- Refresh button with enhanced styling -->
+      <button 
+        (click)="redrawDiagram()" 
+        class="px-3.5 py-1.5 text-xs font-medium text-primary bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors duration-150 shadow-sm flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Insights Panel with enhanced design -->
+  <div *ngIf="showAiInsights" class="mb-5 p-4 bg-gradient-to-r from-indigo-50 via-indigo-50 to-purple-50 rounded-lg border border-indigo-100 shadow-sm transition-all duration-300 animate-fadeIn">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 mt-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3 flex-1">
+        <h4 class="text-sm font-semibold text-indigo-800">AI Insights</h4>
+        <ng-container *ngIf="aiInsightsLoading; else insightsContent">
+          <div class="flex items-center gap-2 mt-2">
+            <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></span>
+            <span class="text-xs text-indigo-600">Loading AI insights...</span>
+          </div>
+        </ng-container>
+        <ng-template #insightsContent>
+          <p class="mt-2 text-sm text-indigo-700 leading-relaxed">{{ currentAiInsight }}</p>
+          <div class="mt-3 flex items-center">
+            <button (click)="getNextInsight()" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-150 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+              Next insight
+            </button>
+            <div class="mx-3 text-xs text-indigo-300">|</div>
+            <button (click)="fetchAiInsights()" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-150 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Regenerate insights
+            </button>
+            <div class="mx-3 text-xs text-indigo-300">|</div>
+            <button (click)="toggleAiInsights()" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-150 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Hide insights
+            </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!showAiInsights" class="mb-5">
+    <button (click)="toggleAiInsights()" class="flex items-center text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-150 px-3 py-1.5 bg-indigo-50 rounded-full">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+      </svg>
+      Show AI insights
+    </button>
+  </div>
+
+  <!-- Main Diagram Area with enhanced styling -->
+  <div class="relative h-[550px] border border-gray-100 rounded-xl shadow-inner bg-gray-50/30 overflow-hidden">
+    <!-- Loading state with improved animation -->
+    <ng-container *ngIf="loading">
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-95 z-10 rounded-xl backdrop-blur-sm animate-fadeIn">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-500 mb-4"></div>
+        <span class="text-lg font-medium text-gray-700">Loading alignment diagram...</span>
+        <span class="text-xs text-gray-500 mt-1">Please wait while we prepare your visualization</span>
+      </div>
+    </ng-container>
+
+    <!-- Empty state with improved styling -->
+    <ng-container *ngIf="!loading && showPlaceholder">
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 bg-gray-50/50 rounded-xl">
+        <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <span class="text-lg font-medium text-gray-500">No alignment data to display</span>
+        <span class="text-sm text-gray-400 mt-1 max-w-md text-center">Please add objectives and key results to see their alignment and relationships.</span>
+        <button class="mt-4 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-sm hover:bg-primary-dark transition-colors duration-150">
+          Add first objective
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Mini-map with improved styling -->
+    <div *ngIf="!loading && !showPlaceholder" class="absolute bottom-3 right-3 w-48 h-32 bg-white border border-gray-200 rounded-lg shadow-md z-10 overflow-hidden">
+      <div class="absolute top-0 left-0 w-full px-2 py-0.5 bg-gray-100 text-xs text-gray-500 text-center font-medium">Overview</div>
+      <div #miniMapDiv id="miniMapDiv" class="w-full h-full pt-4"></div>
+    </div>
+
+    <!-- The GoJS diagram div -->
+    <div #okrDiagramDiv id="okrDiagramDiv" class="w-full h-full"></div>
+  </div>
+  
+  <!-- Stats Bar with improved design -->
+  <div *ngIf="!loading && !showPlaceholder" class="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <!-- Session Card -->
+    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-yellow-100 rounded-lg p-4 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 p-2 bg-yellow-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-700" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <div class="text-xs text-yellow-800 font-medium uppercase tracking-wide">Session Progress</div>
+          <div class="flex items-center mt-1">
+            <div class="text-xl font-bold text-yellow-900">{{ sessionProgress }}%</div>
+            <div class="text-xs text-yellow-700 ml-2">1 session</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2.5 w-full bg-yellow-100 rounded-full h-1.5">
+        <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="sessionProgress"></div>
+      </div>
+    </div>
+    
+    <!-- Objectives Card -->
+    <div class="bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-100 rounded-lg p-4 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 p-2 bg-purple-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-700" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <div class="text-xs text-purple-800 font-medium uppercase tracking-wide">Objectives</div>
+          <div class="flex items-center mt-1">
+            <div class="text-xl font-bold text-purple-900">{{ objectiveCount }}</div>
+            <div class="text-xs text-purple-700 ml-2">{{ objectiveProgress }}% complete</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2.5 w-full bg-purple-100 rounded-full h-1.5">
+        <div class="bg-purple-500 h-1.5 rounded-full" [style.width.%]="objectiveProgress"></div>
+      </div>
+    </div>
+    
+    <!-- Key Results Card -->
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100 rounded-lg p-4 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 p-2 bg-green-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-700" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <div class="text-xs text-green-800 font-medium uppercase tracking-wide">Key Results</div>
+          <div class="flex items-center mt-1">
+            <div class="text-xl font-bold text-green-900">{{ keyResultCount }}</div>
+            <div class="text-xs text-green-700 ml-2">{{ keyResultProgress }}% complete</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2.5 w-full bg-green-100 rounded-full h-1.5">
+        <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="keyResultProgress"></div>
+      </div>
+    </div>
+    
+    <!-- Tasks Card -->
+    <div class="bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-100 rounded-lg p-4 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-700" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <div class="text-xs text-blue-800 font-medium uppercase tracking-wide">Tasks</div>
+          <div class="flex items-center mt-1">
+            <div class="text-xl font-bold text-blue-900">{{ taskCount }}</div>
+            <div class="text-xs text-blue-700 ml-2">{{ taskProgress }}% complete</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2.5 w-full bg-blue-100 rounded-full h-1.5">
+        <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="taskProgress"></div>
+      </div>
+    </div>
+  </div>
+</div>

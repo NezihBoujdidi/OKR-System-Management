@@ -1,0 +1,15 @@
+/* Meeting room styles */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fix for Jitsi Meet full-screen layout */
+::ng-deep {
+  .jitsi-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+} 

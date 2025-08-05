@@ -1,0 +1,165 @@
+<div class="flex">
+  <app-navigation-sidebar activeRoute="home"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="home"></app-content-sidebar>
+
+  <!-- Main Content -->
+  <div class="ml-[312px] flex-1 min-h-screen bg-gray-50 p-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+      <p class="mt-1 text-gray-500">Overview of your organization's performance</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-4 gap-6 mb-8">
+      <!-- Total Employees -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-2 bg-blue-50 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Total Employees</p>
+              <h3 class="text-2xl font-semibold text-gray-900">150</h3>
+            </div>
+          </div>
+          <span class="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">+15%</span>
+        </div>
+      </div>
+
+      <!-- Active Teams -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-2 bg-purple-50 rounded-lg">
+              <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Active Teams</p>
+              <h3 class="text-2xl font-semibold text-gray-900">5</h3>
+            </div>
+          </div>
+          <span class="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">+2</span>
+        </div>
+      </div>
+
+      <!-- Performance -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-2 bg-yellow-50 rounded-lg">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Avg Performance</p>
+              <h3 class="text-2xl font-semibold text-gray-900">87.6%</h3>
+            </div>
+          </div>
+          <span class="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">+5%</span>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-2 bg-green-50 rounded-lg">
+              <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Active Projects</p>
+              <h3 class="text-2xl font-semibold text-gray-900">12</h3>
+            </div>
+          </div>
+          <span class="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">+3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-2 gap-6 mb-8">
+      <!-- Employee Growth Chart -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-medium text-gray-900">Employee Growth</h3>
+          <div class="flex items-center space-x-2">
+            <button class="px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200">
+              Monthly
+            </button>
+            <button class="px-3 py-1.5 text-sm font-medium rounded-lg bg-accent text-white">
+              Yearly
+            </button>
+          </div>
+        </div>
+        <div class="h-80 w-full">
+          <canvas baseChart
+                  [data]="employeeGrowthData"
+                  [options]="employeeGrowthOptions"
+                  type="line">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Team Performance Chart -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-medium text-gray-900">Team Performance</h3>
+          <div class="flex items-center space-x-2">
+            <button class="px-3 py-1.5 text-sm font-medium rounded-lg bg-accent text-white">
+              Last 7 Days
+            </button>
+            <button class="px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200">
+              Last 30 Days
+            </button>
+          </div>
+        </div>
+        <div class="h-80 w-full">
+          <canvas baseChart
+                  [data]="teamPerformanceData"
+                  [options]="teamPerformanceOptions"
+                  type="bar">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">Recent Activity</h3>
+          <button class="text-sm font-medium text-accent hover:text-accent-dark">
+            View All
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="space-y-6">
+          <div class="flex items-start" *ngFor="let activity of recentActivities">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-900">{{activity.title}}</p>
+              <p class="text-sm text-gray-500">{{activity.description}}</p>
+              <p class="text-xs text-gray-400 mt-1">{{activity.time}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

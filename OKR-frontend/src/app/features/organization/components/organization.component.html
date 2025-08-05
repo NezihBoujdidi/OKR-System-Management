@@ -1,0 +1,428 @@
+<div class="flex">
+    <app-loading-overlay [show]="showLoadingOverlay" [message]="loadingMessage || 'Loading...'"></app-loading-overlay>
+    <app-navigation-sidebar activeRoute="manage"></app-navigation-sidebar>
+    <app-content-sidebar activeSection="manage"></app-content-sidebar>
+    
+    <!-- Main Content -->
+    <div class="ml-[312px] flex-1">
+        <div class="min-h-screen bg-gray-50">
+            <!-- Header -->
+            <div class="bg-white border-b">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-primary text-xl font-semibold">Organization Management</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" 
+                                   placeholder="Search organizations..." 
+                                   (input)="searchOrganizations($event)"
+                                   class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent">
+                            <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <button (click)="addOrganization()" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-accent hover:text-black">
+                            Add Organization
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="px-6 py-4 bg-white border-b">
+                <div class="flex items-center space-x-4">
+                    <!-- Filters -->
+                    <div class="relative inline-block" style="min-width: 120px;">
+                        <app-filter-button
+                            [showFilters]="showFilters"
+                            [filtersCount]="getActiveFiltersCount()"
+                            (toggleFilters)="showFilters = !showFilters"
+                            (closeFilters)="showFilters = false">
+                        </app-filter-button>
+
+                        <!-- Filter Dropdown -->
+                        <div *ngIf="showFilters" 
+                             (clickOutside)="closeFilters()"
+                             (click)="$event.stopPropagation()"
+                             class="fixed-dropdown">
+                            <!-- Status Filter -->
+                            <div class="p-4 border-b">
+                                <h3 class="font-medium text-gray-900 mb-3">Status</h3>
+                                <div class="space-y-2">
+                                    <label *ngFor="let status of availableFilters.status" 
+                                           class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" 
+                                               [checked]="isFilterActive('status', status)"
+                                               (change)="toggleFilterItem('status', status)"
+                                               class="rounded border-gray-300 text-primary focus:ring-accent">
+                                        <span class="text-sm text-gray-700">{{status}}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Filter Actions -->
+                            <div class="p-4 bg-gray-50 rounded-b-lg flex justify-between">
+                                <button (click)="clearFilters()" 
+                                        class="text-sm text-gray-600 hover:text-gray-900">
+                                    Clear filters
+                                </button>
+                                <button (click)="toggleFilters()" 
+                                        class="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent/90">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="relative inline-block" style="min-width: 120px;">
+                        <app-sort-button
+                            [showSorting]="showSorting"
+                            [currentSort]="currentSort"
+                            [sortOptions]="sortOptions"
+                            (toggleSorting)="showSorting = !showSorting"
+                            (closeSorting)="closeSorting()"
+                            (sortChange)="onSortChange($event)">
+                        </app-sort-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div *ngIf="isLoading" class="p-6 flex justify-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 border-2 border-t-2 border-accent rounded-full animate-spin"></div>
+                    <span class="text-gray-600">Loading organizations...</span>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="p-6">
+                <div class="bg-red-50 text-red-600 p-4 rounded-lg">
+                    {{ errorMessage }}
+                </div>
+            </div>
+
+            <!-- Organizations Table -->
+            <div *ngIf="!isLoading && !errorMessage" class="p-6">
+                <div *ngIf="organizations.length > 0" class="bg-white rounded-lg border border-primary/10">
+                    <app-table 
+                        [config]="tableConfig"
+                        [actionTemplate]="orgActions"
+                        (rowClick)="onOrganizationClick($event)">
+                    </app-table>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="organizations.length === 0" class="flex flex-col items-center justify-center p-10">
+                    <app-empty-state 
+                        icon="organization"
+                        title="No Organizations Found"
+                        description="There are no organizations available. Try creating a new organization.">
+                    </app-empty-state>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Organization Actions Template -->
+<ng-template #orgActions let-organization>
+    <div class="relative org-actions">
+        <!-- Three Dots Button -->
+        <button (click)="onOrgActions(organization, $event)" 
+                class="p-2 rounded-lg hover:bg-accent/10 text-gray-400 hover:text-primary transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+            </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div *ngIf="selectedOrgForActions?.id === organization.id" 
+             class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50"
+             style="opacity: 1 !important;">
+            <!-- View Organization Details Button -->
+            <button (click)="viewOrganizationDetails(organization); $event.stopPropagation();"
+                    class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span class="whitespace-nowrap">Organization Details</span>
+            </button>
+            
+            <!-- Divider -->
+            <div class="h-[1px] bg-gray-100 my-2"></div>
+            
+            <!-- Disable Organization Button (only show for active organizations) -->
+            <button *ngIf="organization.status === 'Active'"
+                    (click)="disableOrganization(organization)"
+                    class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                <svg class="w-4 h-4 mr-3 text-red-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                <span class="whitespace-nowrap">Disable Organization</span>
+            </button>
+            
+            <!-- Enable Organization Button (only show for inactive organizations) -->
+            <button *ngIf="organization.status === 'Inactive'"
+                    (click)="enableOrganization(organization)"
+                    class="flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-colors group">
+                <svg class="w-4 h-4 mr-3 text-green-400 group-hover:text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="whitespace-nowrap">Enable Organization</span>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Organization Details Drawer -->
+<div class="drawer-container" [class.show]="showOrganizationDetailsDrawer">
+    <div class="drawer-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6 pb-4 border-b">
+            <h3 class="text-lg font-semibold text-primary">Organization Details</h3>
+            <button (click)="closeOrganizationDetailsDrawer()" 
+                    class="p-1 rounded-full hover:bg-accent/10 text-gray-400 hover:text-primary">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Organization form content -->
+        <div class="form-container">
+            <div class="space-y-4">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name*</label>
+                    <input type="text" 
+                          [(ngModel)]="organizationForm.name" 
+                          [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.name}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                    <p *ngIf="formErrors.name" class="mt-1 text-sm text-red-600">{{ formErrors.name }}</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea 
+                          [(ngModel)]="organizationForm.description" 
+                          rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"></textarea>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" 
+                          [(ngModel)]="organizationForm.email" 
+                          [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.email}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                    <p *ngIf="formErrors.email" class="mt-1 text-sm text-red-600">{{ formErrors.email }}</p>
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" 
+                          [(ngModel)]="organizationForm.phone" 
+                          [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.phone}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                    <p *ngIf="formErrors.phone" class="mt-1 text-sm text-red-600">{{ formErrors.phone }}</p>
+                </div>
+
+                <!-- Country -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <input type="text" 
+                          [(ngModel)]="organizationForm.country" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                </div>
+
+                <!-- Industry -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                    <input type="text" 
+                          [(ngModel)]="organizationForm.industry" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                </div>
+
+                <!-- Size -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Size (employees)</label>
+                    <input type="number" 
+                          [(ngModel)]="organizationForm.size" 
+                          [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.size}"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                    <p *ngIf="formErrors.size" class="mt-1 text-sm text-red-600">{{ formErrors.size }}</p>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            id="orgStatus" 
+                            class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                            [(ngModel)]="organizationForm.isActive">
+                        <label class="ml-2 text-sm text-gray-700" for="orgStatus">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex space-x-4">
+                <button (click)="closeOrganizationDetailsDrawer()"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    Cancel
+                </button>
+                <button (click)="saveOrganizationChanges()"
+                        [disabled]="isUpdating"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span *ngIf="!isUpdating">Save Changes</span>
+                    <span *ngIf="isUpdating">Saving...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Organization Drawer -->
+<div *ngIf="showAddOrganizationDrawer" 
+     class="fixed inset-y-0 right-0 w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 overflow-y-auto"
+     [class.translate-x-0]="showAddOrganizationDrawer"
+     [class.translate-x-full]="!showAddOrganizationDrawer">
+    <div class="p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6 pb-4 border-b">
+            <h3 class="text-lg font-semibold text-primary">Add New Organization</h3>
+            <button (click)="closeAddOrganizationDrawer()" 
+                    class="p-1 rounded-full hover:bg-accent/10 text-gray-400 hover:text-primary">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Organization Icon Preview -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div class="flex flex-col items-center">
+                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-4">
+                    {{ newOrganizationForm.name ? getInitials(newOrganizationForm.name) : 'NEW' }}
+                </div>
+                <div class="text-center">
+                    <div class="font-medium text-lg text-primary">
+                        {{ newOrganizationForm.name || 'New Organization' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Form -->
+        <div class="space-y-4">
+            <!-- Name -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name*</label>
+                <input type="text" 
+                       [(ngModel)]="newOrganizationForm.name"
+                       placeholder="Enter organization name"
+                       [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.name}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                <p *ngIf="formErrors.name" class="mt-1 text-sm text-red-600">{{ formErrors.name }}</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea 
+                       [(ngModel)]="newOrganizationForm.description"
+                       placeholder="Enter organization description"
+                       rows="3"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"></textarea>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" 
+                       [(ngModel)]="newOrganizationForm.email"
+                       placeholder="Enter email address"
+                       [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.email}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                <p *ngIf="formErrors.email" class="mt-1 text-sm text-red-600">{{ formErrors.email }}</p>
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input type="text" 
+                       [(ngModel)]="newOrganizationForm.phone"
+                       placeholder="Enter phone number"
+                       [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.phone}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                <p *ngIf="formErrors.phone" class="mt-1 text-sm text-red-600">{{ formErrors.phone }}</p>
+            </div>
+
+            <!-- Country -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <input type="text" 
+                       [(ngModel)]="newOrganizationForm.country"
+                       placeholder="Enter country"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+            </div>
+
+            <!-- Industry -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                <input type="text" 
+                       [(ngModel)]="newOrganizationForm.industry"
+                       placeholder="Enter industry"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+            </div>
+
+            <!-- Size -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Size (employees)</label>
+                <input type="number" 
+                       [(ngModel)]="newOrganizationForm.size"
+                       placeholder="Enter number of employees"
+                       [ngClass]="{'border-red-500 focus:ring-red-500 focus:border-red-500': formErrors.size}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent">
+                <p *ngIf="formErrors.size" class="mt-1 text-sm text-red-600">{{ formErrors.size }}</p>
+            </div>
+
+            <!-- Active Status -->
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       [(ngModel)]="newOrganizationForm.isActive"
+                       class="rounded border-gray-300 text-accent focus:ring-accent">
+                <label class="ml-2 text-sm text-gray-700">Organization Active</label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex space-x-4">
+            <button (click)="closeAddOrganizationDrawer()"
+                    class="flex-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                Cancel
+            </button>
+            <button (click)="createOrganization()"
+                    [disabled]="isCreating"
+                    class="flex-1 px-3 py-1.5 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
+                <span *ngIf="!isCreating">Create Organization</span>
+                <span *ngIf="isCreating">Creating...</span>
+            </button>
+        </div>
+    </div>
+</div> 

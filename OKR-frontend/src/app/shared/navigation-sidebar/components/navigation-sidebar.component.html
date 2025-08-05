@@ -1,0 +1,102 @@
+<app-loading-overlay [show]="showLoadingOverlay" message="Loading AI Assistant..."></app-loading-overlay>
+
+<div class="fixed left-0 top-0 h-screen w-[68px] bg-primary flex flex-col items-center py-6 z-50">
+  <!-- Logo -->
+  <div class="mb-12">
+    <svg class="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+    </svg>
+  </div>
+  
+  <!-- Navigation -->
+  <nav class="flex flex-col items-center space-y-5">
+    <a (click)="navigate('home')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'home'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+    </a>
+
+    <!-- Add OKRs Navigation Item -->
+    <a (click)="navigate('okrs')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'okrs'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <path stroke-linecap="round" stroke-width="2" d="M9 15h6"/>
+      </svg>
+    </a>
+
+    <a (click)="navigate('employees')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'employees'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+      <span class="absolute left-14 px-2 py-1 bg-primary text-accent text-sm rounded opacity-0 invisible transition-all duration-200">
+        People
+      </span>
+    </a>
+
+    <!-- Chat Button -->
+    <a (click)="navigate('chat')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'chat'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <i class="fas fa-robot w-5 h-5 flex items-center justify-center"></i>
+      <span class="absolute left-14 px-2 py-1 bg-primary text-accent text-sm rounded opacity-0 invisible transition-all duration-200">
+        Chat
+      </span>
+    </a>
+
+    <!-- Meetings Button -->
+    <!-- <a (click)="navigate('meetings')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'meetings'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <i class="fas fa-video w-5 h-5 flex items-center justify-center"></i>
+      <span class="absolute left-14 px-2 py-1 bg-primary text-accent text-sm rounded opacity-0 invisible transition-all duration-200">
+        Meetings
+      </span>
+    </a> -->
+
+    <!-- Add Manage Button -->
+    <a *ngIf="isSuperAdmin" (click)="navigate('manage')" 
+       [ngClass]="{'bg-accent-light text-accent': activeRoute === 'manage'}" 
+       class="p-3 text-white hover:text-accent rounded-lg cursor-pointer transition-all duration-200 relative group">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      <span class="absolute left-14 px-2 py-1 bg-primary text-accent text-sm rounded opacity-0 invisible transition-all duration-200">
+        Manage
+      </span>
+    </a>
+  </nav>
+
+  <!-- Upgrade Button - Updated to show active state -->
+  <div *ngIf="!isSuperAdmin && !isTeamManagerORcollaborator" class="mt-auto mb-5 relative group cursor-pointer" (click)="navigate('subscription/upgrade')">
+    <div class="p-3 rounded-lg flex items-center justify-center transition-all duration-200"
+         [ngClass]="{'bg-gradient-to-r from-accent to-accent/90 shadow-sm hover:shadow-md hover:shadow-accent/10': activeRoute !== 'subscription', 
+                     'bg-accent-light text-accent': activeRoute === 'subscription'}">
+      <i class="fas fa-crown" 
+         [ngClass]="{'text-primary text-sm': activeRoute !== 'subscription',
+                     'text-accent text-sm': activeRoute === 'subscription'}"></i>
+    </div>
+    <span class="absolute left-14 whitespace-nowrap px-3 py-1.5 bg-primary text-accent text-sm rounded shadow-lg border border-accent/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 font-medium">
+      Upgrade to Pro
+    </span>
+  </div>
+  
+  <!-- Spacer to maintain layout when upgrade button is hidden -->
+  <div *ngIf="isSuperAdmin || isTeamManagerORcollaborator" class="mt-auto mb-5 h-11"></div>
+
+  <!-- Settings -->
+  <div>
+    <app-profile-avatar
+      [name]="currentUser.name"
+      [imageUrl]="currentUser.imageUrl"
+      [currentUser]="currentUser"
+      size="md">
+    </app-profile-avatar>
+  </div>
+</div>

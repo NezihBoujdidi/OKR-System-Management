@@ -1,0 +1,28 @@
+<!-- Drawer Overlay -->
+<div *ngIf="isOpen" class="fixed inset-0 overflow-hidden z-50">
+    <!-- Background Overlay -->
+    <div class="absolute inset-0 bg-black/30" (click)="onClose()"></div>
+
+    <!-- Drawer Panel -->
+    <div [class]="'absolute inset-y-0 max-w-xl w-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out ' + 
+                  (position === 'right' ? 'right-0' : 'left-0')">
+        <!-- Header - Fixed -->
+        <div class="sticky top-0 z-10 bg-white">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h2 class="text-lg font-medium">{{ title }}</h2>
+                <button (click)="onClose()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="drawer-content">
+            <div class="px-6 py-4">
+                <ng-content></ng-content>
+            </div>
+        </div>
+    </div>
+</div>

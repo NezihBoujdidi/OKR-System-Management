@@ -1,0 +1,107 @@
+<ng-container *ngIf="config.data.length > 0; else noData">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div *ngFor="let item of paginatedData" 
+             class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+             [ngClass]="{'opacity-60': item.isDisabled}">
+            <div class="p-4">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3 min-w-0">
+                        <img [src]="item[config.imageKey]? item[config.imageKey] : 'assets/placeholder-avatar.jpg'" 
+                             [alt]="item[config.titleKey]"
+                             class="h-9 w-9 rounded-full flex-shrink-0"
+                             [ngClass]="{
+                                 'border-2 border-accent': !item.isDisabled,
+                                 'border-2 border-gray-200': item.isDisabled
+                             }">
+                        <div class="min-w-0">
+                            <h3 class="text-base font-medium"
+                                [ngClass]="{
+                                    'text-gray-900': !item.isDisabled,
+                                    'text-gray-500': item.isDisabled
+                                }">
+                                {{item[config.titleKey]}}
+                            </h3>
+                            <p class="text-sm text-gray-500 line-clamp-1">{{item[config.subtitleKey]}}</p>
+                        </div>
+                    </div>
+                    <!-- Three Dots Button -->
+                    <div class="flex-shrink-0 ml-2" style="opacity: 1 !important;">
+                        <ng-container *ngIf="actionTemplate">
+                            <ng-container *ngTemplateOutlet="actionTemplate; context: { $implicit: item }">
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <!-- Email -->
+                    <div class="flex items-center space-x-2 text-sm min-w-0"
+                         [ngClass]="{
+                             'text-gray-500': !item.isDisabled,
+                             'text-gray-400': item.isDisabled
+                         }">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                        <span class="truncate">{{item.email}}</span>
+                    </div>
+                    <!-- Role Badge -->
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full"
+                              [ngClass]="{
+                                  'bg-blue-100 text-blue-800': item[config.badgeKey] === 'TeamManager' && !item.isDisabled,
+                                  'bg-green-100 text-green-800': item[config.badgeKey] === 'Collaborator' && !item.isDisabled,
+                                  'bg-purple-100 text-purple-800': item[config.badgeKey] === 'OrganizationAdmin' && !item.isDisabled,
+                                  'bg-gray-100 text-gray-800': item.isDisabled
+                              }">
+                            {{item[config.badgeKey]}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #noData>
+    <app-empty-state 
+        icon="users"
+        message="No employees found"
+        description="Try adjusting your search or filter criteria">
+    </app-empty-state>
+</ng-template>
+
+<!-- Pagination -->
+<div *ngIf="config.enablePagination && config.data.length > 0" 
+     class="mt-6 flex items-center justify-between px-6 py-3 bg-white border-t border-gray-200">
+    <div class="flex items-center gap-4">
+        <button (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 1"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Previous
+        </button>
+
+        <div class="flex items-center gap-2">
+            <ng-container *ngFor="let page of getPageNumbers()">
+                <button (click)="onPageChange(page)"
+                        [ngClass]="{
+                          'bg-accent text-primary-hover': currentPage === page,
+                          'text-gray-700 hover:bg-gray-50': currentPage !== page
+                        }"
+                        class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg">
+                    {{page}}
+                </button>
+            </ng-container>
+        </div>
+
+        <button (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage === totalPages"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Next
+        </button>
+
+        <span class="text-sm text-gray-500">
+            Page {{currentPage}} of {{totalPages}}
+        </span>
+    </div>
+</div> 

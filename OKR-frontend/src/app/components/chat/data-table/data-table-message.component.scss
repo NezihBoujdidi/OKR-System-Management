@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+// Additional spacing to separate from text content
+:host-context(.text-white) {
+  margin-top: 16px;
+} 

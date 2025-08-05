@@ -1,0 +1,215 @@
+<app-loading-overlay [show]="showLoadingOverlay" message="Loading..."></app-loading-overlay>
+
+<div class="ml-[312px] flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen w-[calc(100%-312px)]">
+  <!-- Welcome Section -->
+  <div class="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 mb-8 text-white shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+    <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+    <div class="relative z-10">
+      <h1 class="text-4xl font-bold mb-3">Welcome to Your Team Hub</h1>
+      <p class="text-white/90 text-lg">Manage your teams, track OKRs, and drive performance</p>
+      <div class="flex gap-4 mt-6">
+        <button (click)="viewOKRs()" class="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-lg flex items-center transition-all">
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          View OKRs
+        </button>
+        <button (click)="navigateToTeams()" class="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-lg flex items-center transition-all">
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          My Teams
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Overview -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Team Performance -->
+    <div class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Team Performance</h2>
+        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+      </div>
+      <div class="space-y-4" *ngIf="topPerformingTeam; else noTeamData">
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-l-4 border-primary">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-white font-bold shadow-sm">
+              {{topPerformingTeam.teamName.charAt(0).toUpperCase()}}
+            </div>
+            <div class="ml-4">
+              <h4 class="font-medium text-lg">{{topPerformingTeam.teamName}}</h4>
+              <p class="text-sm text-gray-500">Top performing team</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold text-green-600">{{topPerformingTeam.performanceLast30Days}}%</div>
+            <p class="text-sm text-gray-500">Last 30 days</p>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <div class="flex justify-between mb-1 text-sm">
+            <span class="text-gray-600">Overall progress</span>
+            <span class="text-gray-800 font-medium">{{topPerformingTeam.performanceLast30Days}}%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="bg-primary h-2.5 rounded-full" [style.width.%]="topPerformingTeam.performanceLast30Days"></div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noTeamData>
+        <div class="flex flex-col items-center justify-center p-8 text-center">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <h4 class="font-medium text-lg text-gray-700">No Team Data</h4>
+          <p class="text-gray-500 mt-2">Team performance data will appear here</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Recent Objective (Previously Team Updates) -->
+    <div class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Recent Objective</h2>
+        <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+      </div>
+      <div class="space-y-4" *ngIf="recentObjective; else noObjectiveData">
+        <div class="p-4 bg-gray-50 rounded-xl" 
+             [ngClass]="isObjectiveInProgress ? 'border-l-4 border-accent' : 'border-l-4 border-blue-400'">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-medium text-lg">{{recentObjective.title}}</h4>
+              <div class="flex items-center mt-2">
+                <svg class="w-4 h-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-gray-500">{{objectiveDueText}}</p>
+              </div>
+            </div>
+            <span class="px-3 py-1.5 rounded-full text-sm font-medium"
+                  [ngClass]="isObjectiveInProgress ? 'bg-accent/10 text-accent' : 'bg-blue-100 text-blue-800'">
+              {{isObjectiveInProgress ? 'In Progress' : 'Not Started'}}
+            </span>
+          </div>
+          <p *ngIf="recentObjective.description" class="mt-3 text-sm text-gray-600">
+            {{recentObjective.description.length > 120 ? recentObjective.description.substring(0, 120) + '...' : recentObjective.description}}
+          </p>
+        </div>
+        
+        <div class="flex justify-between items-center mt-4">
+          <button (click)="viewOKRs()" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center transition-colors">
+            View all objectives
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <ng-template #noObjectiveData>
+        <div class="flex flex-col items-center justify-center p-8 text-center">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <h4 class="font-medium text-lg text-gray-700">No Objectives</h4>
+          <p class="text-gray-500 mt-2">Objective data will appear here</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Create New OKR -->
+    <div (click)="viewOKRs()" class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all cursor-pointer group border border-gray-100 relative overflow-hidden">
+      <div class="absolute right-0 bottom-0 w-24 h-24 bg-primary/5 rounded-tl-full"></div>
+      <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all">
+        <svg class="w-7 h-7 text-primary group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">Track OKRs</h3>
+      <p class="text-gray-600 mb-4">Start tracking new objectives and key results for your team</p>
+      <div class="flex items-center text-primary group-hover:translate-x-2 transition-transform">
+        <span class="font-medium">View OKRs</span>
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- My Teams -->
+    <div (click)="navigateToTeams()" class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all cursor-pointer group border border-gray-100 relative overflow-hidden">
+      <div class="absolute right-0 bottom-0 w-24 h-24 bg-accent/5 rounded-tl-full"></div>
+      <div class="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-accent group-hover:scale-110 transition-all">
+        <svg class="w-7 h-7 text-accent group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold mb-2 group-hover:text-accent transition-colors">My Teams</h3>
+      <p class="text-gray-600 mb-4">View and manage all your team members and assignments</p>
+      <div class="flex items-center text-accent group-hover:translate-x-2 transition-transform">
+        <span class="font-medium">Manage Teams</span>
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div (click)="navigateToAnalytics()" class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all cursor-pointer group border border-gray-100 relative overflow-hidden">
+      <div class="absolute right-0 bottom-0 w-24 h-24 bg-blue-50 rounded-tl-full"></div>
+      <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500 group-hover:scale-110 transition-all">
+        <svg class="w-7 h-7 text-blue-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold mb-2 group-hover:text-blue-500 transition-colors">Analytics Dashboard</h3>
+      <p class="text-gray-600 mb-4">View comprehensive team performance metrics and insights</p>
+      <div class="flex items-center text-blue-500 group-hover:translate-x-2 transition-transform">
+        <span class="font-medium">View Analytics</span>
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resources Section -->
+  <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
+    <h2 class="text-xl font-semibold mb-6 flex items-center">
+      <svg class="w-6 h-6 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+      Team Resources
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+      <div class="p-5 border border-gray-200 rounded-xl hover:border-primary hover:shadow-md transition-all group relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full -mt-8 -mr-8"></div>
+        <div class="relative">
+          <h3 class="font-medium mb-2 text-lg group-hover:text-primary transition-colors">OKR Best Practices</h3>
+          <p class="text-gray-600 mb-4">Learn how to write effective team OKRs and implement them successfully</p>
+          <a (click)="navigateToBestPractices($event)"
+             class="text-primary hover:text-primary-dark font-medium inline-flex items-center cursor-pointer group-hover:translate-x-2 transition-transform">
+            Read More
+            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,149 @@
+<div class="flex">
+    <app-navigation-sidebar activeRoute="employees"></app-navigation-sidebar>
+    <app-content-sidebar activeSection="employees"></app-content-sidebar>
+    
+    <!-- Main Content -->
+    <div class="ml-[312px] flex-1">
+        <div class="min-h-screen bg-gray-50">
+            <!-- Header -->
+            <div class="bg-white border-b">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <a routerLink="/dashboard" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-primary text-xl font-semibold">My Teams</h1>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Invite Button -->
+                    <button 
+                        (click)="openInviteModal()"
+                        class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-accent hover:text-black flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Invite Collaborator</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Teams List Section -->
+            <div class="flex-1 min-h-0 overflow-y-scroller pr-2 pl-6 py-4">
+                <!-- Teams Grid -->
+                <div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <app-card *ngFor="let team of teams"
+                        [title]="team.name"
+                        [description]="team.description"
+                        [teamManagerId]="team.teamManagerId"
+                        [teamMembers]="team.teamMembers"
+                        [managerName]="team.managerName"
+                        [managerRole]="team.managerRole"
+                        [managerImage]="team.managerImage"
+                        [createdDate]="team.createdDate"
+                        [organizationId]="team.organizationId"
+                        [hasEditPermission]="false"
+                        (click)="selectTeam(team)">
+                    </app-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Details Modal -->
+<app-team-details-modal
+    *ngIf="showTeamDetailsModal"
+    [team]="selectedTeam"
+    [currentUser]="currentUser"
+    (close)="showTeamDetailsModal = false"
+    (teamsUpdated)="handleTeamsUpdated()">
+</app-team-details-modal>
+
+<!-- Add Invite Modal -->
+<div *ngIf="showInviteModal" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-[500px]">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-primary">Invite Collaborator</h3>
+            <button (click)="showInviteModal = false" 
+                    class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+            <!-- Select Team -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Select Team</label>
+                <div class="relative">
+                    <select formControlName="teamId"
+                            class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-400 appearance-none">
+                        <option value="" disabled>Select team</option>
+                        <option *ngFor="let team of teams"  
+                                [value]="team.id" 
+                                class="text-gray-900">
+                            {{ team.name }}
+                        </option>
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <div class="relative">
+                    <input type="email" 
+                           formControlName="email"
+                           placeholder="Enter email address"
+                           class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button type="button"
+                        (click)="showInviteModal = false"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit"
+                        [disabled]="!inviteForm.valid || isInviting"
+                        class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-accent hover:text-black disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span *ngIf="!isInviting">Send Invite</span>
+                    <span *ngIf="isInviting" class="flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div> 

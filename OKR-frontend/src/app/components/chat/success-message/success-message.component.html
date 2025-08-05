@@ -1,0 +1,45 @@
+<div class="w-full rounded-xl overflow-hidden shadow-md border mb-1 animate-fadeIn bg-gradient-to-r from-[#1b2538]/90 to-[#1e2941]/90 border-gray-700/40">
+  <div class="p-4">
+    <!-- Success message -->
+    <div class="flex items-center gap-2 mb-3 py-2 px-3 rounded-md border"
+         [ngClass]="{
+           'bg-red-500/10 border-red-500/30': operationType === 'delete',
+           'bg-accent/10 border-accent/20': operationType !== 'delete'
+         }">
+      <i [class]="getSuccessIcon() + ' text-sm'"
+         [ngClass]="{
+           'text-red-400': operationType === 'delete',
+           'text-accent': operationType !== 'delete'
+         }"></i>
+      <p class="text-white text-sm">{{ getSuccessMessage() }}</p>
+    </div>
+    
+    <div class="flex items-start gap-4">
+      <!-- Icon -->
+      <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border"
+           [ngClass]="{
+             'bg-red-500/15 text-red-400 border-red-500/30': operationType === 'delete',
+             'bg-accent/15 text-accent border-accent/30': operationType !== 'delete'
+           }">
+        <i [class]="getIconClass()"></i>
+      </div>
+      
+      <!-- Content -->
+      <div class="flex-1">
+        <h3 class="font-semibold text-white text-base mb-1">
+          {{ entityInfo.title }}
+        </h3>
+        
+        <p *ngIf="entityInfo.description" class="text-gray-300 text-sm mb-2">
+          {{ entityInfo.description }}
+        </p>
+        
+        <div *ngIf="entityInfo.startDate && entityInfo.endDate && operationType !== 'delete'" class="flex items-center gap-1.5 text-xs text-gray-400 mt-2">
+          <i class="fas fa-calendar-alt text-accent/80"></i>
+          <span>{{ formatDateRange(entityInfo.startDate, entityInfo.endDate) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

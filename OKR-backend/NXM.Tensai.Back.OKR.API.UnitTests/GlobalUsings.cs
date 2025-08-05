@@ -1,0 +1,11 @@
+global using Xunit;
+global using FluentAssertions;
+global using Bogus;
+global using Moq;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.Extensions.Logging;
+global using MediatR;
+global using FluentValidation;
+global using NXM.Tensai.Back.OKR.Domain;
+global using NXM.Tensai.Back.OKR.Application;
+global using NXM.Tensai.Back.OKR.API;

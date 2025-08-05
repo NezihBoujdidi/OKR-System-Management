@@ -1,0 +1,134 @@
+<div class="flex h-screen">
+    <!-- Main Content Area -->
+    <div class="ml-[312px] bg-gray-50 w-[calc(100%-312px)] flex flex-col h-screen overflow-x-hidden">
+        <!-- Simple Professional Header -->
+        <div class="bg-white border-b">
+            <div class="px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-xl font-semibold text-gray-900">{{ pageTitle }}</h1>
+                    <div class="h-4 w-px bg-gray-200 mx-2"></div>
+                    <span class="text-sm text-gray-500">{{filteredSessions.length}} sessions</span>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <!-- Clean Search using app-search component -->
+                    <app-search 
+                        placeholder="Search sessions..."
+                        (onSearch)="onSearch($event)"
+                        class="w-64">
+                    </app-search>
+
+                    <!-- Minimal Create Button -->
+                    <button *ngIf="isAuthorized"
+                            (click)="createNewSession()" 
+                            class="px-4 py-2 bg-primary text-accent text-sm font-medium rounded-lg 
+                                   hover:bg-accent hover:text-primary transition-colors">
+                        Create Session
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Container -->
+        <div class="flex flex-col flex-1">
+            <!-- Sessions Container -->
+            <div class="p-6">
+                <!-- Show Empty State when no sessions found -->
+                <ng-container *ngIf="filteredSessions.length === 0; else sessionsContent">
+                    <app-empty-state
+                        icon="session"
+                        title="No sessions found"
+                        description="Try adjusting your search terms or filters to find what you're looking for">
+                    </app-empty-state>
+                </ng-container>
+
+                <!-- Sessions Content -->
+                <ng-template #sessionsContent>
+                    <div #cardsContainer class="w-[1140px] overflow-x-auto 
+                                [&::-webkit-scrollbar]:h-1.5 
+                                [&::-webkit-scrollbar-track]:bg-transparent
+                                [&::-webkit-scrollbar-thumb]:bg-gray-200 
+                                [&::-webkit-scrollbar-thumb]:rounded-full
+                                hover:[&::-webkit-scrollbar-thumb]:bg-gray-300
+                                [scrollbar-width:thin]
+                                [scrollbar-color:theme(colors.gray.200)_transparent]">
+                        <div class="flex gap-4 pb-2">
+                            <app-session-card 
+                                *ngFor="let session of filteredSessions"
+                                [session]="session"
+                                (sessionClick)="onSessionClick($event)"
+                                (sessionDeleted)="onSessionDeleted($event)"
+                                (sessionEdit)="onSessionEdit($event)"
+                                class="w-[320px] flex-shrink-0">
+                            </app-session-card>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Timeline -->
+            <div class="p-6 mt-auto">
+                <app-timeline 
+                    [config]="timelineConfig"
+                    (yearChange)="onTimelineYearChange($event)">
+                </app-timeline>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Session Drawer -->
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 flex items-start justify-end transition-opacity duration-300"
+         [class.opacity-0]="!showNewSessionDrawer"
+         [class.hidden]="!showNewSessionDrawer"
+         (click)="onOverlayClick($event)">
+        <div class="bg-white h-full w-[40rem] overflow-y-auto overflow-x-hidden transform transition-transform duration-300"
+             [class.translate-x-0]="showNewSessionDrawer"
+             [class.translate-x-full]="!showNewSessionDrawer">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Create New Session</h2>
+                    <button (click)="closeDrawer()" class="text-gray-400 hover:text-gray-500">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <app-new-session-form 
+                    #newSessionForm
+                    [organizationId]="organizationId"
+                    (submitForm)="onNewSessionSubmit($event)" 
+                    (cancelForm)="closeDrawer()">
+                </app-new-session-form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Session Drawer -->
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 flex items-start justify-end transition-opacity duration-300"
+         [class.opacity-0]="!showEditSessionDrawer"
+         [class.hidden]="!showEditSessionDrawer"
+         (click)="onEditOverlayClick($event)">
+        <div class="bg-white h-full w-[40rem] overflow-y-auto overflow-x-hidden transform transition-transform duration-300"
+             [class.translate-x-0]="showEditSessionDrawer"
+             [class.translate-x-full]="!showEditSessionDrawer">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Edit Session</h2>
+                    <button (click)="closeEditDrawer()" class="text-gray-400 hover:text-gray-500">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <app-new-session-form 
+                    #newSessionForm
+                    [isEditMode]="true"
+                    [organizationId]="organizationId"
+                    [sessionData]="selectedSession"
+                    (submitForm)="updateSession($event)" 
+                    (cancelForm)="closeEditDrawer()">
+                </app-new-session-form>
+            </div>
+        </div>
+    </div>
+</div>

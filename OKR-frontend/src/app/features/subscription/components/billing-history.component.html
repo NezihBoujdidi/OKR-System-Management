@@ -1,0 +1,62 @@
+<div class="px-6 py-4 max-w-full">
+  <h2 class="text-xl font-medium text-gray-900 mb-6">Billing History</h2>
+  
+  <!-- Debug info - remove in production -->
+  <div class="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
+    State: {{ isLoading ? 'Loading...' : 'Ready' }} | 
+    Records: {{ billingHistory.length || 0 }}
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="flex justify-center py-8" *ngIf="isLoading">
+    <div class="w-10 h-10 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+  </div>
+  
+  <!-- Error message -->
+  <div class="flex items-center p-4 mb-4 text-red-800 bg-red-100 rounded-lg" *ngIf="error && !isLoading">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+    </svg>
+    <span>{{ error }}</span>
+  </div>
+  
+  <!-- No records message -->
+  <div class="p-8 text-center text-gray-600 border border-dashed border-gray-300 rounded-lg" 
+       *ngIf="!isLoading && !error && (!billingHistory || billingHistory.length === 0)">
+    <p>No billing history records found.</p>
+  </div>
+  
+  <!-- Billing history data table -->
+  <table class="w-full shadow-sm rounded-lg overflow-hidden" 
+         *ngIf="!isLoading && !error && billingHistory && billingHistory.length > 0">
+    <thead>
+      <tr class="bg-gray-50 text-gray-700">
+        <th class="px-4 py-3 font-medium text-left">Date</th>
+        <th class="px-4 py-3 font-medium text-left">Description</th>
+        <th class="px-4 py-3 font-medium text-left">Amount</th>
+        <th class="px-4 py-3 font-medium text-left">Status</th>
+        <th class="px-4 py-3 font-medium text-left">Invoice</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of billingHistory; let i = index" class="hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-3 border-t border-gray-200">{{ formatDate(item.paidAt) }}</td>
+        <td class="px-4 py-3 border-t border-gray-200">{{ item.description || 'Subscription Payment' }}</td>
+        <td class="px-4 py-3 border-t border-gray-200 font-medium">{{ formatCurrency(item.amount, item.currency) }}</td>
+        <td class="px-4 py-3 border-t border-gray-200">
+          <span class="px-2 py-1 text-xs font-medium rounded-full capitalize" [class]="getStatusClass(item.status)">
+            {{ item.status }}
+          </span>
+        </td>
+        <td class="px-4 py-3 border-t border-gray-200">
+          <a *ngIf="item.invoiceId && item.invoicePdfUrl" [href]="item.invoicePdfUrl" target="_blank" class="text-indigo-600 hover:text-indigo-900" title="Download invoice">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-900 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+          </a>
+          <span *ngIf="!item.invoiceId" class="text-gray-400">-</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div> 

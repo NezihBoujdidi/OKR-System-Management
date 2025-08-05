@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Test</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        select, button { padding: 8px; }
+        #card-element { border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
+        #card-errors { color: red; margin-top: 5px; }
+        button { background: #5469d4; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        #response { margin-top: 20px; white-space: pre-wrap; background: #f4f4f4; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Subscription Test</h1>
+    
+    <div class="form-group">
+        <label for="plan">Select Plan:</label>
+        <select id="plan">
+            <option value="basic">Basic Plan ($9.99)</option>
+            <option value="professional">Professional Plan ($19.99)</option>
+            <option value="enterprise">Enterprise Plan ($49.99)</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Card Information:</label>
+        <div id="card-element"></div>
+        <div id="card-errors" role="alert"></div>
+    </div>
+    
+    <button id="submit">Subscribe</button>
+    
+    <div id="message" class="form-group"></div>
+    
+    <div id="response"></div>
+    
+    <script>
+        // Get the publishable key from the server first
+        async function initStripe() {
+            try {
+                const configResponse = await fetch('/api/subscriptions/config');
+                const configData = await configResponse.json();
+                const publishableKey = configData.publishableKey;
+                
+                const stripe = Stripe(publishableKey);
+                const elements = stripe.elements();
+                
+                // Create card Element and mount it
+                const cardElement = elements.create('card');
+                cardElement.mount('#card-element');
+                
+                // Handle real-time validation errors
+                cardElement.on('change', function(event) {
+                    const displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+                
+                // Handle form submission
+                const form = document.getElementById('submit');
+                form.addEventListener('click', async function(event) {
+                    event.preventDefault();
+                    
+                    document.getElementById('message').innerHTML = 'Processing...';
+                    document.getElementById('response').style.display = 'none';
+                    form.disabled = true;
+                    
+                    try {
+                        // Create payment method
+                        const result = await stripe.createPaymentMethod({
+                            type: 'card',
+                            card: cardElement,
+                        });
+                        
+                        if (result.error) {
+                            document.getElementById('message').innerHTML = `<div class="error">${result.error.message}</div>`;
+                            form.disabled = false;
+                            return;
+                        }
+                        
+                        console.log('Payment Method ID:', result.paymentMethod.id);
+                        
+                        // Send payment method ID to server
+                        const planId = document.getElementById('plan').value;
+                        const response = await fetch('/api/subscriptions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                planId: planId,
+                                paymentMethodId: result.paymentMethod.id
+                            })
+                        });
+                        
+                        const responseData = await response.json();
+                        
+                        if (response.ok) {
+                            document.getElementById('message').innerHTML = '<div class="success">Subscription created successfully!</div>';
+                            document.getElementById('response').textContent = JSON.stringify(responseData, null, 2);
+                            document.getElementById('response').style.display = 'block';
+                        } else {
+                            document.getElementById('message').innerHTML = `<div class="error">Error: ${responseData.message || responseData || 'Something went wrong.'}</div>`;
+                            document.getElementById('response').textContent = JSON.stringify(responseData, null, 2);
+                            document.getElementById('response').style.display = 'block';
+                        }
+                    } catch (error) {
+                        document.getElementById('message').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                        console.error('Error:', error);
+                    }
+                    
+                    form.disabled = false;
+                });
+            } catch (error) {
+                console.error('Failed to initialize Stripe:', error);
+                document.getElementById('message').innerHTML = `<div class="error">Failed to initialize Stripe: ${error.message}</div>`;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initStripe);
+    </script>
+</body>
+</html> 

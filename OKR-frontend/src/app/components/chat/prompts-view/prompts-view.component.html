@@ -1,0 +1,91 @@
+<!-- Prompts View Container -->
+<div class="flex-1 flex flex-col h-full bg-gradient-to-br from-[#131b2c] to-[#1a2236] animate-fadeIn hide-scrollbar"
+     style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z\' fill=\'%232d3748\' fill-opacity=\'0.07\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');">
+  
+  <!-- Header Section - More refined -->
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+    <div>
+      <h2 class="text-lg font-semibold text-white mb-1 animate-fadeInDown">Suggested Prompts</h2>
+      <p class="text-xs text-gray-400 animate-fadeInDown" style="animation-delay: 100ms">Start a conversation with these optimized queries</p>
+    </div>
+    <button class="px-3 py-1.5 rounded-md border border-gray-700/60 bg-gray-800/50 hover:bg-gray-700/60 text-white text-xs transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md animate-fadeInRight" (click)="backToChat.emit()">
+      <i class="fas fa-arrow-left text-[10px]"></i>
+      <span>Back to Chat</span>
+    </button>
+  </div>
+  
+  <!-- Content Section - More refined scrolling -->
+  <div class="flex-1 overflow-y-auto px-4 py-5 hide-scrollbar">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let suggestion of suggestedPrompts; let i = index" 
+            class="bg-gradient-to-br from-[#1b2538]/90 to-[#1e2941]/90 rounded-md overflow-hidden transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md border border-gray-800/50 hover:border-accent/30 animate-fadeInUp"
+            (click)="useSuggestedPrompt(suggestion.prompt)"
+            [style.animation-delay]="(i * 0.1) + 's'">
+          <div class="p-4 relative">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-5 mix-blend-overlay" 
+                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z\' fill=\'%23ffffff\'/%3E%3C/svg%3E');">
+            </div>
+            
+            <div class="relative z-10 flex flex-col h-[180px]">
+              <div class="flex items-center mb-3">
+                <div class="w-8 h-8 rounded-md bg-accent/15 flex items-center justify-center text-accent mr-3 shadow-sm animate-pulse-subtle border border-accent/20">
+                  <i class="fas" [ngClass]="'fa-' + suggestion.icon + ' text-sm'"></i>
+                </div>
+                <h3 class="text-base font-medium text-white">{{ suggestion.title }}</h3>
+              </div>
+              
+              <div class="mb-3 p-3 bg-gray-900/30 rounded-md border border-gray-700/20 shadow-inner min-h-[60px]">
+                <p class="text-xs text-gray-300 leading-relaxed">{{ suggestion.prompt }}</p>
+              </div>
+              
+              <div class="flex flex-wrap gap-1.5 mt-auto mb-1">
+                <span class="px-2 py-0.5 bg-gray-800/60 rounded-md text-[10px] text-gray-300 border border-gray-700/20 shadow-sm">
+                  <i class="fas fa-tag text-accent mr-1 text-[8px]"></i> OKR
+                </span>
+                <span class="px-2 py-0.5 bg-gray-800/60 rounded-md text-[10px] text-gray-300 border border-gray-700/20 shadow-sm">
+                  <i class="fas fa-tag text-accent mr-1 text-[8px]"></i> {{ suggestion.icon === 'chart-line' ? 'Analytics' : suggestion.icon === 'tasks' ? 'Tasks' : suggestion.icon === 'star' ? 'Review' : 'Planning' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="px-4 py-3 bg-[#161f32]/70 border-t border-gray-800/30 flex justify-between items-center relative">
+            <div class="text-xs text-gray-400 flex items-center">
+              <i class="fas fa-bolt text-accent mr-1.5 text-[10px]"></i>
+              <span>AI-optimized</span>
+            </div>
+            <button class="px-3 py-1.5 rounded-md text-xs font-medium bg-accent hover:bg-accent-hover text-primary transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-1.5">
+              <i class="fas fa-comment text-[10px]"></i>
+              <span>Use Prompt</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Add New Suggestion Card - More refined -->
+        <div class="bg-gradient-to-br from-[#1b2538]/70 to-[#1e2941]/70 rounded-md overflow-hidden border border-dashed border-gray-700/30 cursor-pointer transition-all duration-300 hover:border-accent/30 shadow-sm hover:shadow-md animate-fadeInUp" style="animation-delay: 0.5s">
+          <div class="p-6 text-center">
+            <div class="w-10 h-10 rounded-md bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center mx-auto mb-3 shadow-sm border border-accent/20">
+              <i class="fas fa-plus-circle text-accent text-base"></i>
+            </div>
+            <h3 class="text-base font-medium text-white mb-1.5">Create Custom Prompt</h3>
+            <p class="text-xs text-gray-400 max-w-md mx-auto mb-4">Add your own suggestion for future use</p>
+              <button class="px-3 py-1.5 bg-accent/15 hover:bg-accent/20 text-accent border border-accent/30 rounded-md text-xs font-medium transition-all duration-200 inline-flex items-center gap-1.5 shadow-sm hover:shadow-md">
+                <i class="fas fa-magic text-[10px]"></i>
+                <span>Configure New Prompt</span>
+              </button>
+          </div>
+          
+          <div class="px-4 py-3 bg-[#161f32]/70 border-t border-gray-800/30 flex justify-between items-center relative">
+            <div class="text-xs text-gray-400 flex items-center">
+              <i class="fas fa-lightbulb text-accent mr-1.5 text-[10px]"></i>
+              <span>Custom prompt</span>
+            </div>
+            <div class="w-7 h-3"></div> <!-- Smaller spacer to match other cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

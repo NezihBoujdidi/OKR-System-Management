@@ -1,0 +1,72 @@
+<div class="ml-[312px] flex-1 p-6 bg-gray-50 min-h-screen w-[calc(100%-312px)]">
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto">
+    <!-- Back button -->
+    <button (click)="goBack()" 
+            class="mb-6 inline-flex items-center text-gray-600 hover:text-primary transition-colors">
+      <svg class="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Home
+    </button>
+
+    <div class="bg-white rounded-2xl shadow-sm p-8 mb-8">
+      <h1 class="text-3xl font-bold text-primary mb-4">OKR Best Practices</h1>
+      <p class="text-gray-600 text-lg">Learn how to write effective OKRs that drive results and align your team.</p>
+    </div>
+
+    <!-- Best Practices Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <div *ngFor="let practice of bestPractices" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="practice.icon"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-primary mb-2">{{practice.title}}</h3>
+            <p class="text-gray-600">{{practice.description}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example OKRs -->
+    <div class="bg-white rounded-2xl shadow-sm p-8 mb-8">
+      <h2 class="text-2xl font-bold text-primary mb-6">Example OKRs</h2>
+      <div class="space-y-8">
+        <div *ngFor="let example of examples" class="border-l-4 border-accent pl-6">
+          <h3 class="text-xl font-semibold text-primary mb-4">{{example.objective}}</h3>
+          <ul class="space-y-3">
+            <li *ngFor="let kr of example.keyResults" 
+                class="flex items-center text-gray-600">
+              <svg class="w-5 h-5 text-accent mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {{kr}}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="bg-gradient-to-r from-primary to-primary/90 rounded-2xl shadow-sm p-8 text-white">
+      <h2 class="text-2xl font-bold mb-6">Pro Tips</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white/10 rounded-xl p-6">
+          <h3 class="text-lg font-semibold mb-3">Review Regularly</h3>
+          <p class="text-white/80">Schedule weekly check-ins and monthly reviews to track progress and adjust as needed.</p>
+        </div>
+        <div class="bg-white/10 rounded-xl p-6">
+          <h3 class="text-lg font-semibold mb-3">Celebrate Progress</h3>
+          <p class="text-white/80">Acknowledge and celebrate both small wins and major achievements to maintain momentum.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

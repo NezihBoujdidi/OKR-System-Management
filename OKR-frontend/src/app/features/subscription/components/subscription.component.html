@@ -1,0 +1,347 @@
+<div>
+  <app-navigation-sidebar activeRoute="manage"></app-navigation-sidebar>
+  <app-content-sidebar activeSection="manage"></app-content-sidebar>
+  
+  <div class="ml-[312px] flex-1 p-8 bg-white min-h-screen">
+    <!-- Header -->
+    <div class="mb-4">
+      <h1 class="text-2xl font-semibold text-primary">Subscription Management</h1>
+      <p class="text-gray-600">Manage subscription plans for your application</p>
+    </div>
+
+    <div class="bg-white">
+      <!-- Tab Navigation - Yellow Accent Style -->
+      <div class="border-b border-gray-200 mb-6">
+        <div class="flex">
+          <a class="py-4 px-6 border-b-2 border-accent text-accent font-medium">
+            Subscription Plans
+          </a>
+        </div>
+      </div>
+      
+      <!-- Content Area -->
+      <div>
+        <!-- Error Message -->
+        <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-6">
+          <span class="block sm:inline">{{ error }}</span>
+          <button (click)="error = null" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <title>Close</title>
+              <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Header with Title and Button -->
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-semibold text-primary">Available Plans</h2>
+          <button (click)="openAddPlanModal()" class="flex items-center justify-center px-5 py-2.5 bg-accent text-primary font-medium rounded-md hover:bg-accent-hover transition duration-150">
+            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add New Plan
+          </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="loading" class="flex justify-center items-center py-16">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+        </div>
+
+        <!-- Plans List -->
+        <div *ngIf="!loading && plans.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl">
+          <div *ngFor="let plan of plans" class="bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 overflow-hidden relative flex flex-col shadow-sm hover:shadow-md w-full">
+            <!-- Plan Header -->
+            <div class="p-5 border-b border-gray-200">
+              <h3 class="text-lg font-bold mb-1">{{ plan.name }}</h3>
+              <div class="flex items-baseline">
+                <span class="text-2xl font-bold">${{ plan.price }}</span>
+                <span class="text-xs text-gray-500 ml-2">per {{ plan.interval }}</span>
+              </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="px-5 pt-3 text-sm text-gray-600">
+              {{ plan.description }}
+            </div>
+            
+            <!-- Plan Features -->
+            <div class="p-5 flex-grow">
+              <ul class="space-y-3">
+                <li *ngFor="let feature of plan.features" class="flex items-start text-sm">
+                  <i class="fas fa-check text-green-500 mt-1 mr-2 text-xs"></i>
+                  <span class="text-gray-700">{{ feature }}</span>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="p-5 border-t border-gray-100">
+              <div class="flex justify-between">
+                <button (click)="openEditPlanModal(plan)" 
+                  class="flex-1 py-2.5 px-4 mr-2 rounded-md text-sm font-medium transition-all duration-200 bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-50 hover:shadow-sm">
+                  <i class="fas fa-edit mr-1"></i> Edit
+                </button>
+                <button (click)="openDeleteConfirmation(plan)" 
+                  class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:shadow-sm">
+                  <i class="fas fa-trash-alt mr-1"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && plans.length === 0" class="text-center p-16 bg-white rounded-lg border border-gray-200 shadow-sm">
+          <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          <h3 class="mt-4 text-lg font-medium text-gray-900">No subscription plans</h3>
+          <p class="mt-2 text-gray-500">Get started by creating a new subscription plan.</p>
+          <div class="mt-8">
+            <button (click)="openAddPlanModal()" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary bg-accent hover:bg-accent-hover transition duration-150">
+              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add New Plan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Adding/Editing Plan - Enhanced -->
+  <div *ngIf="showPlanModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop with blur effect -->
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-filter backdrop-blur-sm transition-opacity ease-out duration-300"></div>
+    
+    <!-- Modal Container -->
+    <div class="flex items-center justify-center min-h-screen p-6">
+      <!-- Modal Panel -->
+      <div class="relative bg-white rounded-xl shadow-xl max-w-3xl w-full mx-auto transform transition-all duration-300 ease-in-out" 
+           [ngClass]="{'opacity-0 scale-95': !showPlanModal, 'opacity-100 scale-100': showPlanModal}">
+        
+        <!-- Modal Header -->
+        <div class="px-8 py-5 flex justify-between items-center border-b border-gray-200 bg-gray-50 rounded-t-xl">
+          <h3 class="text-xl font-bold text-primary">
+            {{ editingPlan ? 'Edit Subscription Plan' : 'Add New Subscription Plan' }}
+          </h3>
+          <button type="button" (click)="closeModal()" 
+                  class="text-gray-400 hover:text-gray-500 focus:outline-none transition duration-150 bg-white rounded-full p-2 hover:bg-gray-100 shadow-sm">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-8">
+          <form [formGroup]="planForm" (ngSubmit)="savePlan()" class="space-y-6">
+            <!-- Two columns for main form -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Left Column -->
+              <div class="space-y-6">
+                <!-- Plan ID -->
+                <div>
+                  <label for="planId" class="block text-sm font-medium text-gray-700 mb-1">Plan ID <span class="text-red-500">*</span></label>
+                  <input type="text" id="planId" formControlName="planId" 
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-2.5">
+                  <div *ngIf="planForm.get('planId')?.invalid && planForm.get('planId')?.touched" class="text-red-600 text-xs mt-1">
+                    Plan ID is required
+                  </div>
+                </div>
+
+                <!-- Plan Name -->
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Plan Name <span class="text-red-500">*</span></label>
+                  <input type="text" id="name" formControlName="name" 
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-2.5">
+                  <div *ngIf="planForm.get('name')?.invalid && planForm.get('name')?.touched" class="text-red-600 text-xs mt-1">
+                    Plan name is required
+                  </div>
+                </div>
+
+                <!-- Plan Type -->
+                <div>
+                  <label for="planType" class="block text-sm font-medium text-gray-700 mb-1">Plan Type <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <select id="planType" formControlName="planType"
+                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent pr-8 py-2.5 text-sm appearance-none">
+                      <option value="Free">Free</option>
+                      <option value="Basic">Basic</option>
+                      <option value="Professional">Professional</option>
+                      <option value="Enterprise">Enterprise</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div *ngIf="planForm.get('planType')?.invalid && planForm.get('planType')?.touched" class="text-red-600 text-xs mt-1">
+                    Plan type is required
+                  </div>
+                </div>
+
+                <!-- Price and Interval in a row -->
+                <div class="grid grid-cols-2 gap-4">
+                  <!-- Price -->
+                  <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price <span class="text-red-500">*</span></label>
+                    <div class="relative rounded-md shadow-sm">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input type="number" id="price" formControlName="price" min="0" step="0.01"
+                           class="block w-full pl-7 py-2.5 border-gray-300 rounded-md focus:border-accent focus:ring-accent text-sm">
+                    </div>
+                    <div *ngIf="planForm.get('price')?.invalid && planForm.get('price')?.touched" class="text-red-600 text-xs mt-1">
+                      Required
+                    </div>
+                  </div>
+
+                  <!-- Billing Interval -->
+                  <div>
+                    <label for="interval" class="block text-sm font-medium text-gray-700 mb-1">Billing Interval <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                      <select id="interval" formControlName="interval"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent pr-8 py-2.5 text-sm appearance-none">
+                        <option value="month">Monthly</option>
+                        <option value="year">Yearly</option>
+                      </select>
+                      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Button Text -->
+                <div>
+                  <label for="buttonText" class="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                  <input type="text" id="buttonText" formControlName="buttonText" 
+                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-2.5"
+                       placeholder="Subscribe">
+                  <p class="text-gray-500 text-xs mt-1">Text displayed on the subscription button</p>
+                </div>
+                
+                <!-- Recommended Plan -->
+                <div class="flex items-center mt-2 bg-gray-50 p-3 rounded-md border border-gray-200">
+                  <input type="checkbox" id="recommended" formControlName="recommended"
+                       class="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent">
+                  <div class="ml-3">
+                    <label for="recommended" class="font-medium text-sm text-gray-700">Recommended Plan</label>
+                    <p class="text-gray-500 text-xs mt-0.5">Display this plan as recommended to users</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Right Column -->
+              <div class="space-y-6">
+                <!-- Description -->
+                <div>
+                  <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                  <textarea id="description" formControlName="description" rows="3"
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm"></textarea>
+                  <div *ngIf="planForm.get('description')?.invalid && planForm.get('description')?.touched" class="text-red-600 text-xs mt-1">
+                    Description is required
+                  </div>
+                </div>
+                
+                <!-- Features Section -->
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                  <div class="flex justify-between items-center mb-3">
+                    <label class="block text-sm font-medium text-gray-700">Plan Features</label>
+                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">{{ planFeatures.length }} features</span>
+                  </div>
+                  
+                  <!-- Add Feature -->
+                  <div class="flex space-x-2 mb-3">
+                    <input type="text" [(ngModel)]="featureInput" [ngModelOptions]="{standalone: true}" 
+                         placeholder="Add a feature" 
+                         class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-2.5">
+                    <button type="button" (click)="addFeature()" 
+                         class="px-4 py-2.5 bg-accent text-primary rounded-md hover:bg-accent-hover font-medium shadow-sm transition duration-150 text-sm">
+                      Add
+                    </button>
+                  </div>
+                  
+                  <!-- Features List -->
+                  <div class="border border-gray-200 rounded-md overflow-hidden bg-white">
+                    <div class="max-h-48 overflow-y-auto">
+                      <div *ngFor="let feature of planFeatures; let i = index" 
+                          class="flex items-center justify-between p-2.5 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
+                        <span class="text-gray-700 text-sm">{{ feature }}</span>
+                        <button type="button" (click)="removeFeature(i)" 
+                             class="text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-gray-100 transition duration-150">
+                          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
+                      <div *ngIf="planFeatures.length === 0" class="p-4 text-center text-gray-400 text-sm">
+                        No features added yet
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2">Features will be displayed as a list on the plan card</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-5 border-t border-gray-200 flex justify-end space-x-3 mt-6">
+              <button type="button" (click)="closeModal()" 
+                   class="px-5 py-2.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 font-medium transition duration-150 shadow-sm">
+                Cancel
+              </button>
+              <button type="submit" [disabled]="planForm.invalid" 
+                   class="px-5 py-2.5 bg-accent text-primary rounded-md hover:bg-accent-hover disabled:opacity-50 text-sm font-medium transition duration-150 shadow-sm">
+                {{ editingPlan ? 'Update Plan' : 'Create Plan' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop with blur effect -->
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-filter backdrop-blur-sm transition-opacity ease-out duration-300"></div>
+    
+    <!-- Modal Container -->
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <!-- Modal Panel -->
+      <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-auto transform transition-all duration-300 ease-in-out" 
+           [ngClass]="{'opacity-0 scale-95': !showDeleteModal, 'opacity-100 scale-100': showDeleteModal}">
+        
+        <!-- Modal Content -->
+        <div class="p-6 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-red-100">
+            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+          </div>
+          
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Subscription Plan</h3>
+          <p class="text-gray-600 mb-6">Are you sure you want to delete <span class="font-semibold">{{ planToDelete?.name }}</span>? This action cannot be undone.</p>
+          
+          <div class="flex justify-center space-x-3">
+            <button (click)="cancelDelete()" 
+                class="px-5 py-2.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 font-medium transition duration-150 shadow-sm">
+              Cancel
+            </button>
+            <button (click)="confirmDelete()" 
+                class="px-5 py-2.5 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium transition duration-150 shadow-sm flex items-center justify-center min-w-[80px]">
+              <i *ngIf="isDeleting" class="fas fa-spinner fa-spin mr-2"></i>
+              <span>{{ isDeleting ? 'Deleting...' : 'Yes, Delete' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

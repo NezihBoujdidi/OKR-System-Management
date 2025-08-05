@@ -1,0 +1,123 @@
+<div class="data-table-container animate-fadeIn bg-gradient-to-r from-[#1b2538]/90 to-[#1e2941]/90 rounded-lg overflow-hidden border border-gray-800/50 mb-4">
+  <!-- Table Header with Search -->
+  <div class="p-4 border-b border-gray-800/50 flex flex-wrap items-center justify-between gap-3">
+    <h3 class="text-sm font-medium text-white">Data Results</h3>
+    
+    <div class="relative">
+      <input
+        type="text"
+        placeholder="Search..."
+        class="py-1.5 pl-8 pr-3 text-xs rounded-md border border-gray-700/50 bg-[#111827]/50 text-white focus:outline-none focus:ring-1 focus:ring-accent/30 placeholder-gray-500 w-48"
+        (input)="onSearch($event)"
+      />
+      <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <i class="fas fa-search text-xs"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Table Content -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="text-xs text-gray-300 bg-[#111827]/40 uppercase">
+        <tr>
+          <th *ngFor="let column of config.columns" 
+              [style.width]="column.width || 'auto'"
+              class="px-4 py-2 font-medium border-b border-gray-800/50"
+              [class.cursor-pointer]="column.sortable" 
+              (click)="column.sortable && onSort(column)">
+            <div class="flex items-center">
+              {{ column.header }}
+              <span *ngIf="column.sortable" class="ml-1">
+                <i class="fas text-[8px] text-gray-500"
+                   [class.text-accent]="sortColumn === column.key"
+                   [class.fa-sort-up]="sortColumn === column.key && sortDirection === 'asc'"
+                   [class.fa-sort-down]="sortColumn === column.key && sortDirection === 'desc'"
+                   [class.fa-sort]="sortColumn !== column.key"></i>
+              </span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="displayedData.length === 0" class="border-b border-gray-800/30 hover:bg-gray-800/10">
+          <td [attr.colspan]="config.columns.length" class="px-4 py-8 text-center text-gray-400">
+            <div class="flex flex-col items-center">
+              <i class="fas fa-search text-accent mb-2 text-lg opacity-50"></i>
+              <span>No matching records found</span>
+              <span *ngIf="searchTerm" class="text-xs mt-1">
+                Try clearing your search term or using different keywords
+              </span>
+            </div>
+          </td>
+        </tr>
+        
+        <tr *ngFor="let row of displayedData" 
+            class="border-b border-gray-800/30 hover:bg-gray-800/10 transition-colors duration-150 cursor-pointer"
+            (click)="onRowClick(row)">
+          <td *ngFor="let column of config.columns" class="px-4 py-2.5 text-gray-300">
+            <ng-container [ngSwitch]="column.type">
+              <!-- Status cell with badge -->
+              <span *ngSwitchCase="'text'" [ngClass]="{
+                'px-2 py-0.5 rounded text-xs font-medium': column.key === 'status',
+                'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300': column.key === 'status' && getCellValue(row, column) === 'NotStarted',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300': column.key === 'status' && getCellValue(row, column) === 'InProgress',
+                'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': column.key === 'status' && getCellValue(row, column) === 'Completed'
+              }">
+                {{ getCellValue(row, column) }}
+              </span>
+              
+              <!-- Progress cell with progress bar -->
+              <div *ngSwitchCase="'number'" class="flex items-center" [ngClass]="{'w-full': column.key === 'progress'}">
+                <ng-container *ngIf="column.key === 'progress'">
+                  <div class="w-full bg-gray-700/40 rounded-full h-1.5 mr-2 flex-grow">
+                    <div class="bg-accent h-1.5 rounded-full" [style.width]="getCellValue(row, column)"></div>
+                  </div>
+                </ng-container>
+                <span>{{ getCellValue(row, column) }}</span>
+              </div>
+              
+              <!-- Default cell -->
+              <span *ngSwitchDefault>{{ getCellValue(row, column) }}</span>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="p-3 border-t border-gray-800/50 flex justify-between items-center">
+    <div class="text-xs text-gray-400">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, filteredData.length) }} of {{ filteredData.length }} entries
+    </div>
+    <div class="flex items-center space-x-1">
+      <button 
+        class="px-2 py-1 rounded-md text-xs text-gray-400 hover:bg-gray-800/40 hover:text-white disabled:opacity-50 disabled:pointer-events-none"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        <i class="fas fa-chevron-left text-[8px]"></i>
+      </button>
+      
+      <ng-container *ngFor="let page of getPages()">
+        <button 
+          class="px-2.5 py-1 rounded-md text-xs transition-colors duration-150"
+          [ngClass]="{
+            'bg-accent': page === currentPage,
+            'text-primary': page === currentPage,
+            'text-gray-400': page !== currentPage
+          }"
+          (click)="onPageChange(page)">
+          {{ page }}
+        </button>
+      </ng-container>
+      
+      <button 
+        class="px-2 py-1 rounded-md text-xs text-gray-400 hover:bg-gray-800/40 hover:text-white disabled:opacity-50 disabled:pointer-events-none"
+        [disabled]="currentPage === totalPages"
+        (click)="onPageChange(currentPage + 1)">
+        <i class="fas fa-chevron-right text-[8px]"></i>
+      </button>
+    </div>
+  </div>
+</div> 

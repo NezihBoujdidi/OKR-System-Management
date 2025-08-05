@@ -1,0 +1,36 @@
+<div class="chat-history-sidebar">
+  <div class="sidebar-header">
+    <h3>Conversations</h3>
+    <button class="new-chat-button" (click)="createNewSession()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"></path>
+      </svg>
+      New Chat
+    </button>
+  </div>
+  
+  <div class="conversations-list">
+    <ng-container *ngIf="sessions.length > 0; else noSessions">
+      <div 
+        *ngFor="let session of sessions" 
+        [ngClass]="{'conversation-item': true, 'active': session.id === currentSessionId}"
+        (click)="selectSession(session)">
+        <div class="conversation-title">
+          {{ getSessionTitle(session) }}
+          <span class="timestamp">{{ session.timestamp | date:'shortDate' }}</span>
+        </div>
+        <button class="delete-button" (click)="deleteSession($event, session.id)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+          </svg>
+        </button>
+      </div>
+    </ng-container>
+    
+    <ng-template #noSessions>
+      <div class="no-sessions">
+        <p>No conversation history</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
